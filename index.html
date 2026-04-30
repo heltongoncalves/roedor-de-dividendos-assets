@@ -17,8 +17,8 @@
             background-color: #0f172a;
             color: #f8fafc;
             font-family: 'Poppins', sans-serif;
-            overflow: hidden; /* Previne scroll na janela do jogo */
-            touch-action: none; /* Melhora a resposta ao toque em telemóveis */
+            overflow: hidden; 
+            touch-action: none; 
         }
 
         #game-container {
@@ -31,10 +31,11 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, #ff7e5f 0%, #feb47b 100%);
+            /* Fundo gradiente caso a imagem de fundo falhe/demore */
+            background: linear-gradient(to bottom, #1e3a8a 0%, #0ea5e9 100%);
         }
 
-        /* Interface do Utilizador (HUD) */
+        /* Interface HUD */
         #hud {
             position: absolute;
             top: 20px;
@@ -44,20 +45,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            pointer-events: none; /* Para não bloquear os cliques no canvas */
+            pointer-events: none; 
             z-index: 10;
         }
 
         .hud-panel {
-            background: rgba(15, 23, 42, 0.7);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(8px);
             padding: 10px 20px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
         .hud-title {
@@ -67,46 +68,55 @@
             letter-spacing: 2px;
             color: #fbbf24;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.8);
             padding: 10px 25px;
             border-radius: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.15);
         }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
+        .stat-value { font-size: 1.5rem; font-weight: 800; }
 
-        /* Ecrã de Fim de Jogo */
-        #game-over {
+        /* Ecrãs (Inicial e Game Over) */
+        .screen-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(15, 23, 42, 0.95);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+        }
+
+        #game-over { display: none; }
+
+        .modal-box {
+            background: rgba(30, 41, 59, 0.95);
             padding: 40px;
             border-radius: 24px;
             text-align: center;
-            border: 3px solid #ef4444;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            display: none; /* Escondido inicialmente */
-            z-index: 20;
-            width: 90%;
-            max-width: 400px;
+            border: 3px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            max-width: 90%;
+            width: 450px;
         }
 
-        #game-over h2 {
-            color: #ef4444;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+        #game-over .modal-box { border-color: #ef4444; }
 
-        #game-over p {
-            font-size: 1.2rem;
-            margin-bottom: 25px;
-            color: #cbd5e1;
+        h1 { color: #fbbf24; font-size: 2.5rem; text-shadow: 3px 3px 0 #b45309; line-height: 1.2; margin-bottom: 10px;}
+        h2 { color: #ef4444; font-size: 2.5rem; margin-bottom: 10px; }
+        p { font-size: 1.1rem; color: #cbd5e1; margin-bottom: 20px; }
+
+        .instructions {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.1);
         }
+        .instructions li { margin: 10px 0; list-style: none; }
 
         button {
             background: #10b981;
@@ -119,63 +129,18 @@
             border-radius: 12px;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 4px 0 #059669;
-        }
-
-        button:hover {
-            background: #34d399;
-            transform: translateY(-2px);
             box-shadow: 0 6px 0 #059669;
-        }
-
-        button:active {
-            transform: translateY(4px);
-            box-shadow: none;
-        }
-
-        /* Ecrã Inicial */
-        #start-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
+            margin-top: 10px;
             width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 30;
         }
 
-        .instructions {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            text-align: left;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .instructions li {
-            margin: 10px 0;
-            font-size: 1.1rem;
-            list-style: none;
-        }
+        button:hover { background: #34d399; transform: translateY(-2px); box-shadow: 0 8px 0 #059669; }
+        button:active { transform: translateY(6px); box-shadow: none; }
 
         @media (max-width: 768px) {
-            #hud {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-                padding: 10px;
-            }
-            .hud-title {
-                order: -1; /* Coloca o título no topo em telemóveis */
-                width: 100%;
-                text-align: center;
-            }
+            #hud { flex-wrap: wrap; justify-content: center; gap: 10px; padding: 10px; }
+            .hud-title { order: -1; width: 100%; text-align: center; }
+            h1 { font-size: 2rem; }
         }
     </style>
 </head>
@@ -188,9 +153,7 @@
                 <span style="font-size: 1.8rem;">❤️</span>
                 <span class="stat-value" id="lives">3</span>
             </div>
-            
             <div class="hud-title">Fase 1: O Início</div>
-            
             <div class="hud-panel">
                 <span style="font-size: 1.8rem;">💰</span>
                 <span class="stat-value" id="seeds">0</span>
@@ -198,28 +161,30 @@
         </div>
 
         <!-- Ecrã Inicial -->
-        <div id="start-screen">
-            <h1 style="color: #fbbf24; font-size: 3rem; margin-bottom: 10px; text-shadow: 3px 3px 0 #b45309;">O Roedor de Dividendos</h1>
-            <p style="font-size: 1.2rem; color: #cbd5e1;">A Caminho da Corretora!</p>
-            
-            <ul class="instructions">
-                <li>👆 <strong>Tocar / Espaço / Seta Cima:</strong> Pular</li>
-                <li>💰 <strong>Sementes:</strong> Apanhe para investir depois (+10)</li>
-                <li>✉️ <strong>Boletos:</strong> Fuja deles ou perderá vida!</li>
-            </ul>
-
-            <button onclick="startGame()">Começar a Correr!</button>
+        <div id="start-screen" class="screen-overlay">
+            <div class="modal-box">
+                <h1>O Roedor de Dividendos</h1>
+                <p>A Caminho da Corretora!</p>
+                <ul class="instructions">
+                    <li>👆 <strong>Pular:</strong> Tocar / Espaço / Seta Cima</li>
+                    <li>💰 <strong>Sementes:</strong> Apanhe para investir depois</li>
+                    <li>✉️ <strong>Boletos:</strong> Fuja para não perder vida!</li>
+                </ul>
+                <button onclick="startGame()">Começar a Correr!</button>
+            </div>
         </div>
 
         <!-- Ecrã de Game Over -->
-        <div id="game-over">
-            <h2>Burnout!</h2>
-            <p>Os boletos foram mais fortes...</p>
-            <p>Património Final: <strong style="color: #fbbf24;">💰 <span id="final-score">0</span></strong></p>
-            <button onclick="startGame()">Tentar Novamente</button>
+        <div id="game-over" class="screen-overlay">
+            <div class="modal-box">
+                <h2>Burnout!</h2>
+                <p>A corrida dos ratos venceu desta vez...</p>
+                <p>Património Final: <strong style="color: #fbbf24;">💰 <span id="final-score">0</span></strong></p>
+                <button onclick="startGame()">Tentar Novamente</button>
+            </div>
         </div>
 
-        <!-- O Canvas do Jogo -->
+        <!-- Canvas -->
         <canvas id="gameCanvas"></canvas>
     </div>
 
@@ -227,89 +192,114 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // --- NOVO: Carregamento da Sprite Sheet ---
+        // --- GESTÃO DA SPRITE SHEET ---
         const spriteSheet = new Image();
         let isImageLoaded = false;
-        spriteSheet.crossOrigin = "Anonymous"; // Previne erros de CORS no Canvas
+        spriteSheet.crossOrigin = "Anonymous"; 
         
         spriteSheet.onload = () => {
-            console.log("Sprite sheet carregada com sucesso!");
+            console.log("Sprite sheet matriz carregada com sucesso!");
             isImageLoaded = true;
         };
         spriteSheet.onerror = () => {
-            console.warn("Falha ao carregar a Sprite Sheet. A utilizar o fallback de Emojis.");
+            console.warn("Falha a carregar a imagem. Fallback ativado.");
             isImageLoaded = false;
         };
+        // URL da imagem no seu repositório
         spriteSheet.src = 'https://heltongoncalves.github.io/roedor-de-dividendos-assets/G0001.png';
 
-        // --- Mapeamento da Matriz de Ativos Visuais ---
-        // Baseado na estrutura solicitada: 
-        // Linhas 1-4: Personagem | Linha 5: Plataformas | Linhas 6-7: Desafios e Coletáveis
-        // Constantes baseadas numa grelha hipotética de 128px para o personagem e 64px para itens
-        const pSize = 128; // Player Size na imagem original
-        const iSize = 64;  // Item Size na imagem original
-
+        /* * MAPEAMENTO DE COORDENADAS NORMALIZADAS (0 a 1)
+         * Baseado na matriz visual G0001.jpg fornecida.
+         * Formato: [x_inicial, y_inicial, largura, altura]
+         */
         const SPRITE_MAP = {
-            // Seção 1: CIFRÃO (Ex: Linha 2, Coluna 1 da matriz para a animação "Correndo")
-            jogador: { x: pSize * 0, y: pSize * 1, w: pSize, h: pSize }, 
-            
-            // Seção 3: DESAFIOS E COLEÇÃO (Itens menores localizados mais abaixo na matriz)
-            // Ex: Semente na Linha 7, Boleto na Linha 6
-            semente: { x: 0,         y: pSize * 4 + iSize * 1, w: iSize, h: iSize }, 
-            boleto:  { x: iSize * 2, y: pSize * 4 + iSize * 0, w: iSize, h: iSize }  
+            // Animação de corrida (Linha 2 da Secção 1) - 4 frames
+            playerRun: [
+                [0.015, 0.205, 0.08, 0.15],
+                [0.125, 0.205, 0.08, 0.15],
+                [0.235, 0.205, 0.08, 0.15],
+                [0.345, 0.205, 0.08, 0.15]
+            ],
+            // Pulo/Surf (Linha 3, frame 2)
+            playerJump: [0.125, 0.380, 0.09, 0.15], 
+            // Animação da Moeda/Semente (Secção 3) - 4 frames
+            coin: [
+                [0.515, 0.585, 0.045, 0.085],
+                [0.585, 0.585, 0.045, 0.085],
+                [0.655, 0.585, 0.045, 0.085],
+                [0.725, 0.585, 0.045, 0.085]
+            ],
+            // Animação do Boleto (Secção 3) - 3 frames
+            boleto: [
+                [0.510, 0.445, 0.075, 0.075],
+                [0.595, 0.445, 0.075, 0.075],
+                [0.675, 0.445, 0.075, 0.075]
+            ],
+            // Paisagem da Cidade Synthwave (Imagem 9 da Secção 2)
+            bgCity: [0.015, 0.77, 0.28, 0.21],
+            // Plataforma de Madeira para o Chão (Imagem 4 da Secção 2)
+            platform: [0.30, 0.505, 0.19, 0.11]
         };
-        // -----------------------------------------
 
-        // Elementos UI
+        // Função utilitária para desenhar a partir do mapeamento normalizado
+        function drawSprite(mapData, x, y, width, height) {
+            if (!isImageLoaded) return false;
+            const sx = mapData[0] * spriteSheet.width;
+            const sy = mapData[1] * spriteSheet.height;
+            const sw = mapData[2] * spriteSheet.width;
+            const sh = mapData[3] * spriteSheet.height;
+            ctx.drawImage(spriteSheet, sx, sy, sw, sh, x, y, width, height);
+            return true;
+        }
+
+        // --- VARIÁVEIS DE ESTADO ---
         const hudLives = document.getElementById('lives');
         const hudSeeds = document.getElementById('seeds');
-        const gameOverScreen = document.getElementById('game-over');
-        const startScreen = document.getElementById('start-screen');
-        const finalScoreLabel = document.getElementById('final-score');
-
-        // Estado do Jogo
+        
         let animationId;
         let isPlaying = false;
         let score = 0;
         let lives = 3;
         let gameSpeed = 6;
         let frameCount = 0;
+        let bgOffset = 0;
+        let floorOffset = 0;
         
-        // Entidades
         let player;
         let obstacles = [];
         let collectibles = [];
         let particles = [];
 
-        // Constantes da Física
+        // Constantes Físicas
         const GRAVITY = 0.6;
         const JUMP_FORCE = -14;
-        const FLOOR_HEIGHT = 80;
+        const FLOOR_HEIGHT = 90; // Altura da plataforma de madeira na tela
 
-        // Redimensionar Canvas
+        // Ajuste de Resolução Responsiva
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            if (player) {
-                // Ajusta a posição do jogador se o ecrã mudar
-                if (player.y > canvas.height - FLOOR_HEIGHT - player.size) {
-                    player.y = canvas.height - FLOOR_HEIGHT - player.size;
-                }
+            if (player && player.isGrounded) {
+                player.y = canvas.height - FLOOR_HEIGHT - player.size + 10;
             }
         }
         window.addEventListener('resize', resize);
-        resize(); // Configuração inicial
+        resize();
 
         // --- CLASSES ---
 
         class Player {
             constructor() {
-                this.size = 60;
+                this.size = 80; // Tamanho de desenho na tela
+                this.hitSize = 50; // Hitbox um pouco menor para ser justo
                 this.x = 80;
-                this.y = canvas.height - FLOOR_HEIGHT - this.size;
+                this.y = canvas.height - FLOOR_HEIGHT - this.size + 10;
                 this.vy = 0;
                 this.isGrounded = true;
-                this.rotation = 0;
+                
+                // Variáveis de Animação
+                this.animFrame = 0;
+                this.animTimer = 0;
             }
 
             jump() {
@@ -324,125 +314,127 @@
                 this.vy += GRAVITY;
                 this.y += this.vy;
 
-                // Colisão com o chão
-                if (this.y + this.size >= canvas.height - FLOOR_HEIGHT) {
-                    this.y = canvas.height - FLOOR_HEIGHT - this.size;
+                const floorLevel = canvas.height - FLOOR_HEIGHT - this.size + 10;
+                if (this.y >= floorLevel) {
+                    this.y = floorLevel;
                     this.vy = 0;
                     this.isGrounded = true;
-                    this.rotation = 0; // Volta ao normal quando aterra
-                } else {
-                    // Roda ligeiramente ao pular
-                    this.rotation = Math.min(this.vy * 2, 45); 
+                }
+
+                // Controlar frames de animação da corrida
+                if (this.isGrounded) {
+                    this.animTimer++;
+                    if (this.animTimer > 5) { // Troca de sprite a cada 5 frames (velocidade da corrida)
+                        this.animFrame = (this.animFrame + 1) % SPRITE_MAP.playerRun.length;
+                        this.animTimer = 0;
+                    }
                 }
             }
 
             draw() {
-                ctx.save();
-                ctx.translate(this.x + this.size/2, this.y + this.size/2);
-                ctx.rotate(this.rotation * Math.PI / 180);
-                
                 if (isImageLoaded) {
-                    // Desenha o sprite mapeado do Hamster (Ajusta p/ o tamanho desenhado 'this.size')
-                    const s = SPRITE_MAP.jogador;
-                    ctx.drawImage(spriteSheet, s.x, s.y, s.w, s.h, -this.size/2, -this.size/2, this.size, this.size);
+                    let spriteData;
+                    if (this.isGrounded) {
+                        spriteData = SPRITE_MAP.playerRun[this.animFrame];
+                    } else {
+                        // Se estiver no ar, usa o frame de salto/surf
+                        spriteData = SPRITE_MAP.playerJump;
+                    }
+                    drawSprite(spriteData, this.x, this.y, this.size, this.size);
                 } else {
-                    // Desenha o Hamster (utilizando Emoji em alta resolução como fallback dinâmico)
-                    ctx.font = `${this.size}px Arial`;
+                    // Fallback
+                    ctx.save();
+                    ctx.translate(this.x + this.size/2, this.y + this.size/2);
+                    if(!this.isGrounded) ctx.rotate(Math.min(this.vy * 2, 45) * Math.PI / 180);
+                    ctx.font = `${this.size - 20}px Arial`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
                     ctx.fillText("🐹", 0, 0);
-                    
-                    // Adiciona uma prancha de surf rudimentar por baixo
-                    if (!this.isGrounded) {
-                        ctx.fillStyle = '#d97706'; // Cor de madeira
-                        ctx.beginPath();
-                        ctx.ellipse(0, this.size/2 - 10, 35, 8, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
+                    ctx.restore();
                 }
 
-                ctx.restore();
+                // Debug Hitbox (descomente para ver):
+                // ctx.strokeStyle = 'red'; ctx.strokeRect(this.x + 15, this.y + 15, this.hitSize, this.hitSize);
             }
         }
 
         class Entity {
             constructor(type) {
                 this.type = type; // 'boleto' ou 'semente'
-                this.size = type === 'boleto' ? 50 : 40;
+                this.size = type === 'boleto' ? 60 : 50;
+                this.hitSize = type === 'boleto' ? 40 : 35;
                 this.x = canvas.width + 50;
                 
-                // Sementes podem aparecer no ar, boletos ficam no chão (maioritariamente)
                 if (type === 'semente') {
-                    // Posição Y aleatória: perto do chão ou altura do salto
-                    this.y = canvas.height - FLOOR_HEIGHT - this.size - (Math.random() * 150);
+                    // Sementes aparecem em alturas variadas
+                    this.y = canvas.height - FLOOR_HEIGHT - this.size - (Math.random() * 160);
                 } else {
-                    this.y = canvas.height - FLOOR_HEIGHT - this.size;
+                    // Boletos rastejam no chão
+                    this.y = canvas.height - FLOOR_HEIGHT - this.size + 15;
                 }
                 
                 this.markedForDeletion = false;
-                this.hoverOffset = 0; // Para animação de flutuar
+                
+                // Animação
+                this.animFrame = 0;
+                this.animTimer = 0;
+                this.hoverOffset = 0;
             }
 
             update() {
                 this.x -= gameSpeed;
-                if (this.x + this.size < 0) this.markedForDeletion = true;
+                if (this.x + this.size < -50) this.markedForDeletion = true;
 
-                // Animação de flutuação suave
-                this.hoverOffset = Math.sin(frameCount * 0.1) * 5;
+                // Atualizar frame da animação
+                this.animTimer++;
+                const framesLength = this.type === 'semente' ? SPRITE_MAP.coin.length : SPRITE_MAP.boleto.length;
+                if (this.animTimer > 6) { // Velocidade da animação do item
+                    this.animFrame = (this.animFrame + 1) % framesLength;
+                    this.animTimer = 0;
+                }
+
+                if (this.type === 'semente') {
+                    this.hoverOffset = Math.sin(frameCount * 0.1) * 6; // Flutua suavemente
+                }
             }
 
             draw() {
-                ctx.save();
-                ctx.font = `${this.size}px Arial`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                const drawY = this.y + this.hoverOffset;
                 
-                if (this.type === 'semente') {
-                    ctx.translate(this.x + this.size/2, this.y + this.size/2 + this.hoverOffset);
-                    if (isImageLoaded) {
-                        const s = SPRITE_MAP.semente;
-                        ctx.drawImage(spriteSheet, s.x, s.y, s.w, s.h, -this.size/2, -this.size/2, this.size, this.size);
-                    } else {
-                        ctx.fillText("💰", 0, 0);
-                        // Brilho na semente
-                        ctx.shadowBlur = 15;
-                        ctx.shadowColor = "gold";
-                    }
+                if (isImageLoaded) {
+                    const spriteData = this.type === 'semente' 
+                        ? SPRITE_MAP.coin[this.animFrame] 
+                        : SPRITE_MAP.boleto[this.animFrame];
+                    
+                    drawSprite(spriteData, this.x, drawY, this.size, this.size);
                 } else {
-                    ctx.translate(this.x + this.size/2, this.y + this.size/2);
-                    if (isImageLoaded) {
-                        const s = SPRITE_MAP.boleto;
-                        ctx.drawImage(spriteSheet, s.x, s.y, s.w, s.h, -this.size/2, -this.size/2, this.size, this.size);
+                    // Fallback
+                    ctx.font = `${this.size - 10}px Arial`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    if (this.type === 'semente') {
+                        ctx.shadowBlur = 15; ctx.shadowColor = "gold";
+                        ctx.fillText("💰", this.x + this.size/2, drawY + this.size/2);
+                        ctx.shadowBlur = 0;
                     } else {
-                        // Faz o boleto vibrar ligeiramente
                         const shake = Math.random() * 4 - 2;
-                        ctx.fillText("✉️", shake, 0);
-                        
-                        // Ícone de imposto
-                        ctx.fillStyle = "red";
-                        ctx.font = "20px Arial";
-                        ctx.fillText("!", 15, -15);
+                        ctx.fillText("✉️", this.x + this.size/2 + shake, drawY + this.size/2);
                     }
                 }
-                
-                ctx.restore();
             }
         }
 
         class Particle {
             constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.size = Math.random() * 5 + 2;
-                this.vx = Math.random() * 4 - 2;
-                this.vy = Math.random() * -4 - 1;
+                this.x = x; this.y = y; this.color = color;
+                this.size = Math.random() * 6 + 3;
+                this.vx = Math.random() * 6 - 3;
+                this.vy = Math.random() * -5 - 2;
                 this.life = 1.0;
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life -= 0.05;
+                this.x += this.vx; this.y += this.vy;
+                this.life -= 0.04;
             }
             draw() {
                 ctx.globalAlpha = Math.max(0, this.life);
@@ -457,59 +449,72 @@
         // --- SISTEMAS DO JOGO ---
 
         function createParticles(x, y, color, amount) {
-            for (let i = 0; i < amount; i++) {
-                particles.push(new Particle(x, y, color));
-            }
+            for (let i = 0; i < amount; i++) particles.push(new Particle(x, y, color));
         }
 
         function handleSpawns() {
-            // Aumenta a velocidade do jogo gradualmente
-            if (frameCount % 600 === 0) gameSpeed += 0.5;
+            if (frameCount % 600 === 0) gameSpeed += 0.4; // Dificuldade progressiva
 
-            // Spawn rate aleatório
-            if (frameCount % 90 === 0 || (Math.random() < 0.01 && frameCount % 30 === 0)) {
-                // 30% chance de Boleto, 70% de Semente
-                const type = Math.random() < 0.35 ? 'boleto' : 'semente';
-                
-                if (type === 'boleto') {
-                    obstacles.push(new Entity('boleto'));
-                } else {
-                    collectibles.push(new Entity('semente'));
-                }
+            if (frameCount % 90 === 0 || (Math.random() < 0.02 && frameCount % 40 === 0)) {
+                if (Math.random() < 0.35) obstacles.push(new Entity('boleto'));
+                else collectibles.push(new Entity('semente'));
             }
         }
 
         function drawBackground() {
-            // Sol
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.beginPath();
-            ctx.arc(canvas.width * 0.8, canvas.height * 0.4, 80, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Ondas no fundo (Parallax)
-            ctx.fillStyle = '#0ea5e9'; // Cor do mar
-            ctx.fillRect(0, canvas.height - FLOOR_HEIGHT - 40, canvas.width, 40);
+            // Desenha a Cidade Synthwave em Paralaxe (Move mais devagar)
+            bgOffset -= gameSpeed * 0.3;
             
-            // Chão / Areia da Praia
-            ctx.fillStyle = '#fcd34d'; 
-            ctx.fillRect(0, canvas.height - FLOOR_HEIGHT, canvas.width, FLOOR_HEIGHT);
+            if (isImageLoaded) {
+                // Calcula a largura da cidade baseada na proporção da altura para manter aspect ratio
+                const bgHeight = canvas.height - FLOOR_HEIGHT;
+                const bgWidth = bgHeight * (SPRITE_MAP.bgCity[2] / SPRITE_MAP.bgCity[3]);
+                
+                if (bgOffset <= -bgWidth) bgOffset = 0;
+                
+                // Desenha lado a lado para preencher a tela
+                for(let i = 0; i < Math.ceil(canvas.width / bgWidth) + 1; i++) {
+                    drawSprite(SPRITE_MAP.bgCity, bgOffset + (i * bgWidth), 0, bgWidth, bgHeight);
+                }
+            } else {
+                // Fallback sol
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.beginPath(); ctx.arc(canvas.width * 0.8, canvas.height * 0.4, 80, 0, Math.PI * 2); ctx.fill();
+            }
 
-            // Detalhes da areia em movimento
-            ctx.fillStyle = '#d97706';
-            for (let i = 0; i < 10; i++) {
-                let pX = ((frameCount * 2) + i * 200) % canvas.width;
-                ctx.fillRect(canvas.width - pX, canvas.height - FLOOR_HEIGHT + 20, 15, 5);
+            // Desenha o Chão de Madeira
+            floorOffset -= gameSpeed;
+            if (isImageLoaded) {
+                // Para o chão, forçamos a altura e calculamos a largura proporcional
+                const floorW = FLOOR_HEIGHT * (SPRITE_MAP.platform[2] / SPRITE_MAP.platform[3]) * 1.5;
+                if (floorOffset <= -floorW) floorOffset = 0;
+                
+                for(let i = 0; i < Math.ceil(canvas.width / floorW) + 1; i++) {
+                    drawSprite(SPRITE_MAP.platform, floorOffset + (i * floorW), canvas.height - FLOOR_HEIGHT, floorW, FLOOR_HEIGHT);
+                }
+            } else {
+                ctx.fillStyle = '#fcd34d'; 
+                ctx.fillRect(0, canvas.height - FLOOR_HEIGHT, canvas.width, FLOOR_HEIGHT);
+                ctx.fillStyle = '#d97706';
+                for (let i = 0; i < 10; i++) {
+                    let pX = ((frameCount * 2) + i * 200) % canvas.width;
+                    ctx.fillRect(canvas.width - pX, canvas.height - FLOOR_HEIGHT + 20, 15, 5);
+                }
             }
         }
 
         function checkCollision(player, entity) {
-            // Hitbox reduzida para ser mais justo
-            const hitMargin = 15; 
+            // Usa as hitBoxes reduzidas para uma jogabilidade mais justa e precisa
+            const pX = player.x + (player.size - player.hitSize) / 2;
+            const pY = player.y + (player.size - player.hitSize) / 2;
+            const eX = entity.x + (entity.size - entity.hitSize) / 2;
+            const eY = entity.y + (entity.size - entity.hitSize) / 2;
+
             return (
-                player.x + hitMargin < entity.x + entity.size - hitMargin &&
-                player.x + player.size - hitMargin > entity.x + hitMargin &&
-                player.y + hitMargin < entity.y + entity.size - hitMargin &&
-                player.y + player.size - hitMargin > entity.y + hitMargin
+                pX < eX + entity.hitSize &&
+                pX + player.hitSize > eX &&
+                pY < eY + entity.hitSize &&
+                pY + player.hitSize > eY
             );
         }
 
@@ -521,27 +526,22 @@
         function gameOver() {
             isPlaying = false;
             cancelAnimationFrame(animationId);
-            gameOverScreen.style.display = 'block';
-            finalScoreLabel.innerText = score;
+            document.getElementById('game-over').style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
         }
 
         // --- LOOP PRINCIPAL ---
 
         function init() {
             player = new Player();
-            obstacles = [];
-            collectibles = [];
-            particles = [];
-            score = 0;
-            lives = 3;
-            gameSpeed = 6;
-            frameCount = 0;
+            obstacles = []; collectibles = []; particles = [];
+            score = 0; lives = 3; gameSpeed = 6; frameCount = 0;
+            bgOffset = 0; floorOffset = 0;
             updateHUD();
         }
 
         function animate() {
             if (!isPlaying) return;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             drawBackground();
@@ -552,7 +552,7 @@
 
             handleSpawns();
 
-            // Gestão de Colecionáveis (Sementes)
+            // Colecionáveis (Moedas/Sementes)
             for (let i = collectibles.length - 1; i >= 0; i--) {
                 let s = collectibles[i];
                 s.update();
@@ -561,14 +561,14 @@
                 if (checkCollision(player, s)) {
                     score += 10;
                     updateHUD();
-                    createParticles(s.x + s.size/2, s.y + s.size/2, '#fbbf24', 8);
+                    createParticles(s.x + s.size/2, s.y + s.size/2, '#fbbf24', 10);
                     collectibles.splice(i, 1);
                 } else if (s.markedForDeletion) {
                     collectibles.splice(i, 1);
                 }
             }
 
-            // Gestão de Obstáculos (Boletos)
+            // Obstáculos (Boletos)
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i];
                 o.update();
@@ -579,15 +579,12 @@
                     updateHUD();
                     createParticles(player.x + player.size/2, player.y + player.size/2, '#ef4444', 15);
                     
-                    // Efeito de ecrã a tremer
                     canvas.style.transform = `translate(${Math.random()*10 - 5}px, ${Math.random()*10 - 5}px)`;
                     setTimeout(() => canvas.style.transform = 'translate(0, 0)', 100);
 
-                    obstacles.splice(i, 1); // Remove o boleto após bater
+                    obstacles.splice(i, 1);
 
-                    if (lives <= 0) {
-                        gameOver();
-                    }
+                    if (lives <= 0) gameOver();
                 } else if (o.markedForDeletion) {
                     obstacles.splice(i, 1);
                 }
@@ -596,8 +593,7 @@
             // Partículas
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
-                p.update();
-                p.draw();
+                p.update(); p.draw();
                 if (p.life <= 0) particles.splice(i, 1);
             }
 
@@ -606,27 +602,21 @@
         }
 
         // --- CONTROLOS ---
-
         function startGame() {
-            startScreen.style.display = 'none';
-            gameOverScreen.style.display = 'none';
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
             init();
             isPlaying = true;
             animate();
         }
 
-        // Teclado
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp') {
-                if (isPlaying) player.jump();
-            }
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && isPlaying) player.jump();
         });
 
-        // Toque (Telemóvel / Tablet)
         window.addEventListener('touchstart', (e) => {
-            // Apenas salta se não estiver a clicar num botão UI
             if (e.target.tagName !== 'BUTTON' && isPlaying) {
-                e.preventDefault(); // Previne scroll
+                e.preventDefault();
                 player.jump();
             }
         }, { passive: false });
