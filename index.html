@@ -31,8 +31,8 @@
             display: block;
             width: 100%;
             height: 100%;
-            /* Fundo gradiente caso a imagem de fundo falhe/demore */
-            background: linear-gradient(to bottom, #1e3a8a 0%, #0ea5e9 100%);
+            /* Fundo gradiente do céu limpo */
+            background: linear-gradient(to bottom, #1e3a8a 0%, #38bdf8 100%);
         }
 
         /* Interface HUD */
@@ -192,63 +192,95 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // --- GESTÃO DA SPRITE SHEET ---
+        // --- GESTÃO DA SPRITE SHEET E TRANSPARÊNCIA ---
         const spriteSheet = new Image();
         let isImageLoaded = false;
+        let processedSpriteSheet = null; // Canvas interno para guardar a imagem sem fundo
         spriteSheet.crossOrigin = "Anonymous"; 
         
         spriteSheet.onload = () => {
-            console.log("Sprite sheet matriz carregada com sucesso!");
+            console.log("Sprite sheet matriz carregada. A aplicar transparência...");
+            processedSpriteSheet = applyChromaKey(spriteSheet);
             isImageLoaded = true;
         };
         spriteSheet.onerror = () => {
             console.warn("Falha a carregar a imagem. Fallback ativado.");
             isImageLoaded = false;
         };
-        // URL da imagem no seu repositório
         spriteSheet.src = 'https://heltongoncalves.github.io/roedor-de-dividendos-assets/G0001.png';
 
-        /* * MAPEAMENTO DE COORDENADAS NORMALIZADAS (0 a 1)
-         * Baseado na matriz visual G0001.jpg fornecida.
-         * Formato: [x_inicial, y_inicial, largura, altura]
+        // MAGIA: Algoritmo que remove o fundo branco e a grelha cinzenta da imagem carregada
+        function applyChromaKey(image) {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = image.width;
+            tempCanvas.height = image.height;
+            const tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+            
+            // Desenha a imagem original no canvas temporário
+            tCtx.drawImage(image, 0, 0);
+            
+            // Lê os píxeis
+            const imgData = tCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imgData.data;
+            
+            // Varre cada píxel (Red, Green, Blue, Alpha)
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Se o píxel for branco puro ou muito claro (fundo branco e grelhas claras)
+                // Usamos 210 de limiar (threshold) para também apagar resíduos de compressão jpg
+                if (r > 210 && g > 210 && b > 210) {
+                    data[i + 3] = 0; // Coloca o canal Alpha em 0 (Totalmente Transparente)
+                }
+            }
+            
+            // Aplica os novos píxeis transparentes de volta
+            tCtx.putImageData(imgData, 0, 0);
+            return tempCanvas; // Retornamos um canvas que agora funciona como uma PNG transparente!
+        }
+
+        /* * MAPEAMENTO DE COORDENADAS REAJUSTADO
+         * Apertei mais as caixas de recorte (width e height menores) 
+         * para evitar apanhar os números e linhas da grelha (ex: evitar apanhar o '4')
          */
         const SPRITE_MAP = {
-            // Animação de corrida (Linha 2 da Secção 1) - 4 frames
+            // Animação de corrida (Recorte mais apertado no centro do quadrado)
             playerRun: [
-                [0.015, 0.205, 0.08, 0.15],
-                [0.125, 0.205, 0.08, 0.15],
-                [0.235, 0.205, 0.08, 0.15],
-                [0.345, 0.205, 0.08, 0.15]
+                [0.025, 0.22, 0.065, 0.12],
+                [0.135, 0.22, 0.065, 0.12],
+                [0.245, 0.22, 0.065, 0.12],
+                [0.355, 0.22, 0.065, 0.12]
             ],
-            // Pulo/Surf (Linha 3, frame 2)
-            playerJump: [0.125, 0.380, 0.09, 0.15], 
-            // Animação da Moeda/Semente (Secção 3) - 4 frames
+            playerJump: [0.135, 0.39, 0.075, 0.12], 
+            
+            // Itens com recortes mais justos
             coin: [
                 [0.515, 0.585, 0.045, 0.085],
                 [0.585, 0.585, 0.045, 0.085],
                 [0.655, 0.585, 0.045, 0.085],
                 [0.725, 0.585, 0.045, 0.085]
             ],
-            // Animação do Boleto (Secção 3) - 3 frames
             boleto: [
                 [0.510, 0.445, 0.075, 0.075],
                 [0.595, 0.445, 0.075, 0.075],
                 [0.675, 0.445, 0.075, 0.075]
             ],
-            // Paisagem da Cidade Synthwave (Imagem 9 da Secção 2)
+            // Fundo Synthwave ajustado
             bgCity: [0.015, 0.77, 0.28, 0.21],
-            // Plataforma de Madeira para o Chão (Imagem 4 da Secção 2)
-            platform: [0.30, 0.505, 0.19, 0.11]
+            // Plataforma com recorte ajustado para não ter margens brancas
+            platform: [0.31, 0.515, 0.17, 0.09]
         };
 
-        // Função utilitária para desenhar a partir do mapeamento normalizado
+        // Função utilitária que agora desenha usando a imagem PROCESSADA
         function drawSprite(mapData, x, y, width, height) {
-            if (!isImageLoaded) return false;
-            const sx = mapData[0] * spriteSheet.width;
-            const sy = mapData[1] * spriteSheet.height;
-            const sw = mapData[2] * spriteSheet.width;
-            const sh = mapData[3] * spriteSheet.height;
-            ctx.drawImage(spriteSheet, sx, sy, sw, sh, x, y, width, height);
+            if (!isImageLoaded || !processedSpriteSheet) return false;
+            const sx = mapData[0] * processedSpriteSheet.width;
+            const sy = mapData[1] * processedSpriteSheet.height;
+            const sw = mapData[2] * processedSpriteSheet.width;
+            const sh = mapData[3] * processedSpriteSheet.height;
+            ctx.drawImage(processedSpriteSheet, sx, sy, sw, sh, x, y, width, height);
             return true;
         }
 
@@ -270,12 +302,10 @@
         let collectibles = [];
         let particles = [];
 
-        // Constantes Físicas
         const GRAVITY = 0.6;
         const JUMP_FORCE = -14;
-        const FLOOR_HEIGHT = 90; // Altura da plataforma de madeira na tela
+        const FLOOR_HEIGHT = 90;
 
-        // Ajuste de Resolução Responsiva
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -290,14 +320,13 @@
 
         class Player {
             constructor() {
-                this.size = 80; // Tamanho de desenho na tela
-                this.hitSize = 50; // Hitbox um pouco menor para ser justo
+                this.size = 90; // Aumentei o tamanho de desenho para compensar o recorte mais apertado
+                this.hitSize = 50; 
                 this.x = 80;
                 this.y = canvas.height - FLOOR_HEIGHT - this.size + 10;
                 this.vy = 0;
                 this.isGrounded = true;
                 
-                // Variáveis de Animação
                 this.animFrame = 0;
                 this.animTimer = 0;
             }
@@ -321,10 +350,9 @@
                     this.isGrounded = true;
                 }
 
-                // Controlar frames de animação da corrida
                 if (this.isGrounded) {
                     this.animTimer++;
-                    if (this.animTimer > 5) { // Troca de sprite a cada 5 frames (velocidade da corrida)
+                    if (this.animTimer > 5) { 
                         this.animFrame = (this.animFrame + 1) % SPRITE_MAP.playerRun.length;
                         this.animTimer = 0;
                     }
@@ -333,16 +361,9 @@
 
             draw() {
                 if (isImageLoaded) {
-                    let spriteData;
-                    if (this.isGrounded) {
-                        spriteData = SPRITE_MAP.playerRun[this.animFrame];
-                    } else {
-                        // Se estiver no ar, usa o frame de salto/surf
-                        spriteData = SPRITE_MAP.playerJump;
-                    }
+                    let spriteData = this.isGrounded ? SPRITE_MAP.playerRun[this.animFrame] : SPRITE_MAP.playerJump;
                     drawSprite(spriteData, this.x, this.y, this.size, this.size);
                 } else {
-                    // Fallback
                     ctx.save();
                     ctx.translate(this.x + this.size/2, this.y + this.size/2);
                     if(!this.isGrounded) ctx.rotate(Math.min(this.vy * 2, 45) * Math.PI / 180);
@@ -352,30 +373,23 @@
                     ctx.fillText("🐹", 0, 0);
                     ctx.restore();
                 }
-
-                // Debug Hitbox (descomente para ver):
-                // ctx.strokeStyle = 'red'; ctx.strokeRect(this.x + 15, this.y + 15, this.hitSize, this.hitSize);
             }
         }
 
         class Entity {
             constructor(type) {
-                this.type = type; // 'boleto' ou 'semente'
-                this.size = type === 'boleto' ? 60 : 50;
+                this.type = type; 
+                this.size = type === 'boleto' ? 70 : 60;
                 this.hitSize = type === 'boleto' ? 40 : 35;
                 this.x = canvas.width + 50;
                 
                 if (type === 'semente') {
-                    // Sementes aparecem em alturas variadas
                     this.y = canvas.height - FLOOR_HEIGHT - this.size - (Math.random() * 160);
                 } else {
-                    // Boletos rastejam no chão
-                    this.y = canvas.height - FLOOR_HEIGHT - this.size + 15;
+                    this.y = canvas.height - FLOOR_HEIGHT - this.size + 20;
                 }
                 
                 this.markedForDeletion = false;
-                
-                // Animação
                 this.animFrame = 0;
                 this.animTimer = 0;
                 this.hoverOffset = 0;
@@ -385,16 +399,15 @@
                 this.x -= gameSpeed;
                 if (this.x + this.size < -50) this.markedForDeletion = true;
 
-                // Atualizar frame da animação
                 this.animTimer++;
                 const framesLength = this.type === 'semente' ? SPRITE_MAP.coin.length : SPRITE_MAP.boleto.length;
-                if (this.animTimer > 6) { // Velocidade da animação do item
+                if (this.animTimer > 6) { 
                     this.animFrame = (this.animFrame + 1) % framesLength;
                     this.animTimer = 0;
                 }
 
                 if (this.type === 'semente') {
-                    this.hoverOffset = Math.sin(frameCount * 0.1) * 6; // Flutua suavemente
+                    this.hoverOffset = Math.sin(frameCount * 0.1) * 6; 
                 }
             }
 
@@ -408,7 +421,6 @@
                     
                     drawSprite(spriteData, this.x, drawY, this.size, this.size);
                 } else {
-                    // Fallback
                     ctx.font = `${this.size - 10}px Arial`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
@@ -453,7 +465,7 @@
         }
 
         function handleSpawns() {
-            if (frameCount % 600 === 0) gameSpeed += 0.4; // Dificuldade progressiva
+            if (frameCount % 600 === 0) gameSpeed += 0.4; 
 
             if (frameCount % 90 === 0 || (Math.random() < 0.02 && frameCount % 40 === 0)) {
                 if (Math.random() < 0.35) obstacles.push(new Entity('boleto'));
@@ -462,30 +474,24 @@
         }
 
         function drawBackground() {
-            // Desenha a Cidade Synthwave em Paralaxe (Move mais devagar)
             bgOffset -= gameSpeed * 0.3;
             
             if (isImageLoaded) {
-                // Calcula a largura da cidade baseada na proporção da altura para manter aspect ratio
                 const bgHeight = canvas.height - FLOOR_HEIGHT;
                 const bgWidth = bgHeight * (SPRITE_MAP.bgCity[2] / SPRITE_MAP.bgCity[3]);
                 
                 if (bgOffset <= -bgWidth) bgOffset = 0;
                 
-                // Desenha lado a lado para preencher a tela
                 for(let i = 0; i < Math.ceil(canvas.width / bgWidth) + 1; i++) {
                     drawSprite(SPRITE_MAP.bgCity, bgOffset + (i * bgWidth), 0, bgWidth, bgHeight);
                 }
             } else {
-                // Fallback sol
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
                 ctx.beginPath(); ctx.arc(canvas.width * 0.8, canvas.height * 0.4, 80, 0, Math.PI * 2); ctx.fill();
             }
 
-            // Desenha o Chão de Madeira
             floorOffset -= gameSpeed;
             if (isImageLoaded) {
-                // Para o chão, forçamos a altura e calculamos a largura proporcional
                 const floorW = FLOOR_HEIGHT * (SPRITE_MAP.platform[2] / SPRITE_MAP.platform[3]) * 1.5;
                 if (floorOffset <= -floorW) floorOffset = 0;
                 
@@ -495,16 +501,10 @@
             } else {
                 ctx.fillStyle = '#fcd34d'; 
                 ctx.fillRect(0, canvas.height - FLOOR_HEIGHT, canvas.width, FLOOR_HEIGHT);
-                ctx.fillStyle = '#d97706';
-                for (let i = 0; i < 10; i++) {
-                    let pX = ((frameCount * 2) + i * 200) % canvas.width;
-                    ctx.fillRect(canvas.width - pX, canvas.height - FLOOR_HEIGHT + 20, 15, 5);
-                }
             }
         }
 
         function checkCollision(player, entity) {
-            // Usa as hitBoxes reduzidas para uma jogabilidade mais justa e precisa
             const pX = player.x + (player.size - player.hitSize) / 2;
             const pY = player.y + (player.size - player.hitSize) / 2;
             const eX = entity.x + (entity.size - entity.hitSize) / 2;
@@ -545,19 +545,13 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             drawBackground();
-
-            // Jogador
             player.update();
             player.draw();
-
             handleSpawns();
 
-            // Colecionáveis (Moedas/Sementes)
             for (let i = collectibles.length - 1; i >= 0; i--) {
                 let s = collectibles[i];
-                s.update();
-                s.draw();
-
+                s.update(); s.draw();
                 if (checkCollision(player, s)) {
                     score += 10;
                     updateHUD();
@@ -568,12 +562,9 @@
                 }
             }
 
-            // Obstáculos (Boletos)
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i];
-                o.update();
-                o.draw();
-
+                o.update(); o.draw();
                 if (checkCollision(player, o)) {
                     lives--;
                     updateHUD();
@@ -581,16 +572,13 @@
                     
                     canvas.style.transform = `translate(${Math.random()*10 - 5}px, ${Math.random()*10 - 5}px)`;
                     setTimeout(() => canvas.style.transform = 'translate(0, 0)', 100);
-
                     obstacles.splice(i, 1);
-
                     if (lives <= 0) gameOver();
                 } else if (o.markedForDeletion) {
                     obstacles.splice(i, 1);
                 }
             }
 
-            // Partículas
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.update(); p.draw();
@@ -601,7 +589,6 @@
             animationId = requestAnimationFrame(animate);
         }
 
-        // --- CONTROLOS ---
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-over').style.display = 'none';
