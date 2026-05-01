@@ -31,7 +31,6 @@
             display: block;
             width: 100%;
             height: 100%;
-            /* Fundo gradiente do céu limpo */
             background: linear-gradient(to bottom, #1e3a8a 0%, #38bdf8 100%);
         }
 
@@ -41,42 +40,76 @@
             top: 20px;
             left: 0;
             width: 100%;
-            padding: 0 30px;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             pointer-events: none; 
             z-index: 10;
         }
 
+        .hud-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .hud-panel {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             border: 2px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(8px);
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 8px 15px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            min-width: 110px;
+        }
+
+        .hud-panel.debt {
+            border-color: #ef4444;
+            color: #fca5a5;
         }
 
         .hud-title {
-            font-size: 1.2rem;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: #fbbf24;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            background: rgba(15, 23, 42, 0.8);
-            padding: 10px 25px;
-            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 8px 20px;
+            border-radius: 15px;
             border: 2px solid rgba(255, 255, 255, 0.15);
         }
 
-        .stat-value { font-size: 1.5rem; font-weight: 800; }
+        .stat-value { font-size: 1.2rem; font-weight: 800; }
+        .stat-icon { font-size: 1.4rem; }
 
-        /* Ecrãs (Inicial e Game Over) */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .portfolio-item {
+            background: rgba(15, 23, 42, 0.7);
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Ecrãs */
         .screen-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -89,7 +122,7 @@
             z-index: 30;
         }
 
-        #game-over { display: none; }
+        #game-over, #pause-screen { display: none; }
 
         .modal-box {
             background: rgba(30, 41, 59, 0.95);
@@ -99,24 +132,30 @@
             border: 3px solid rgba(255,255,255,0.1);
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             max-width: 90%;
-            width: 450px;
+            width: 500px;
         }
-
-        #game-over .modal-box { border-color: #ef4444; }
 
         h1 { color: #fbbf24; font-size: 2.5rem; text-shadow: 3px 3px 0 #b45309; line-height: 1.2; margin-bottom: 10px;}
         h2 { color: #ef4444; font-size: 2.5rem; margin-bottom: 10px; }
-        p { font-size: 1.1rem; color: #cbd5e1; margin-bottom: 20px; }
+
+        .game-over-message {
+            color: #cbd5e1;
+            font-style: italic;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
 
         .instructions {
             background: rgba(0,0,0,0.3);
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
-            margin: 20px 0;
+            margin: 15px 0;
             text-align: left;
-            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .instructions li { margin: 10px 0; list-style: none; }
+        .instructions li { margin: 5px 0; list-style: none; }
 
         button {
             background: #10b981;
@@ -125,66 +164,95 @@
             padding: 15px 30px;
             font-size: 1.2rem;
             font-weight: bold;
-            font-family: inherit;
             border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
             box-shadow: 0 6px 0 #059669;
-            margin-top: 10px;
             width: 100%;
+            margin-top: 10px;
+            pointer-events: auto;
         }
 
-        button:hover { background: #34d399; transform: translateY(-2px); box-shadow: 0 8px 0 #059669; }
+        button.btn-debt {
+            background: #ef4444;
+            box-shadow: 0 6px 0 #991b1b;
+        }
+
+        button:hover { filter: brightness(1.1); transform: translateY(-2px); }
         button:active { transform: translateY(6px); box-shadow: none; }
+        button:disabled { background: #64748b; box-shadow: 0 6px 0 #334155; opacity: 0.5; cursor: not-allowed; }
 
         @media (max-width: 768px) {
-            #hud { flex-wrap: wrap; justify-content: center; gap: 10px; padding: 10px; }
-            .hud-title { order: -1; width: 100%; text-align: center; }
-            h1 { font-size: 2rem; }
+            .hud-title { display: none; }
+            .portfolio-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <!-- Interface HUD -->
         <div id="hud">
-            <div class="hud-panel">
-                <span style="font-size: 1.8rem;">❤️</span>
-                <span class="stat-value" id="lives">3</span>
+            <div class="hud-group">
+                <div class="hud-panel">
+                    <span class="stat-icon">❤️</span>
+                    <span class="stat-value" id="lives">3</span>
+                </div>
+                <div class="hud-panel">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-value" id="seeds">0</span>
+                </div>
+                <div class="hud-panel debt">
+                    <span class="stat-icon">🧾</span>
+                    <span class="stat-value" id="debt-value">0</span>
+                </div>
             </div>
+            
             <div class="hud-title">Fase 1: O Início</div>
-            <div class="hud-panel">
-                <span style="font-size: 1.8rem;">💰</span>
-                <span class="stat-value" id="seeds">0</span>
+            
+            <div class="hud-group">
+                <div class="portfolio-grid">
+                    <div class="portfolio-item">📈 Ações: <span id="count-acoes">0</span></div>
+                    <div class="portfolio-item">🏢 FIIs: <span id="count-fii">0</span></div>
+                    <div class="portfolio-item">🏛️ Tesouro: <span id="count-tesouro">0</span></div>
+                    <div class="portfolio-item">🏦 R. Fixa: <span id="count-rendafixa">0</span></div>
+                </div>
             </div>
         </div>
 
-        <!-- Ecrã Inicial -->
+        <!-- Ecrã de Pausa -->
+        <div id="pause-screen" class="screen-overlay">
+            <div class="modal-box" style="width: auto; padding: 25px;">
+                <h2 style="color: #fbbf24; font-size: 1.8rem; margin-bottom: 15px;">PAUSA</h2>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: left;">
+                    <p style="color: #cbd5e1;">Saldo Atual: <span style="color: #10b981; font-weight: bold;">💰 <span id="pause-saldo">0</span></span></p>
+                    <p style="color: #cbd5e1;">Dívida Total: <span style="color: #ef4444; font-weight: bold;">🧾 <span id="pause-divida">0</span></span></p>
+                </div>
+                <button id="btn-pay-debt" class="btn-debt" onclick="payDebt()">Quitar Boletos agora!</button>
+                <p style="margin-top: 15px; font-size: 0.8rem; color: #94a3b8;">Pressione <strong>ESC</strong> para voltar à corrida</p>
+            </div>
+        </div>
+
         <div id="start-screen" class="screen-overlay">
             <div class="modal-box">
                 <h1>O Roedor de Dividendos</h1>
-                <p>A Caminho da Corretora!</p>
+                <p>Fuja da insolvência financeira!</p>
                 <ul class="instructions">
-                    <li>👆 <strong>Pular:</strong> Tocar / Espaço / Seta Cima</li>
-                    <li>💰 <strong>Sementes:</strong> Apanhe para investir depois</li>
-                    <li>✉️ <strong>Boletos:</strong> Fuja para não perder vida!</li>
+                    <li>👆 <strong>Pular:</strong> Espaço / Seta Cima</li>
+                    <li>🌀 <strong>Giro:</strong> Pular + Direita (Derruba boletos e ganha +20)</li>
+                    <li>🧾 <strong>Boletos:</strong> Cobram juros! Pague antes que seu saldo acabe.</li>
+                    <li>⚠️ <strong>Falência:</strong> Se a dívida > saldo, você perde 1 vida!</li>
                 </ul>
-                <button onclick="startGame()">Começar a Correr!</button>
+                <button onclick="startGame()">Investir agora!</button>
             </div>
         </div>
 
-        <!-- Ecrã de Game Over -->
         <div id="game-over" class="screen-overlay">
             <div class="modal-box">
                 <h2>Burnout!</h2>
-                <p>A corrida dos ratos venceu desta vez...</p>
-                <p>Património Final: <strong style="color: #fbbf24;">💰 <span id="final-score">0</span></strong></p>
+                <p id="funny-message" class="game-over-message">O mercado foi volátil demais...</p>
                 <button onclick="startGame()">Tentar Novamente</button>
             </div>
         </div>
 
-        <!-- Canvas -->
         <canvas id="gameCanvas"></canvas>
     </div>
 
@@ -192,246 +260,202 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // --- GESTÃO DA SPRITE SHEET E TRANSPARÊNCIA ---
+        const FUNNY_MESSAGES = [
+            "Seu patrimônio virou pó? Calma, o pó é orgânico.",
+            "Foi pra renda variável e a única coisa que variou foi pra baixo.",
+            "Trade de 5 minutos que durou o resto da vida.",
+            "O mercado subiu de escada e desceu de elevador com o cabo rompido.",
+            "Você comprou no topo e vendeu no fundo. Parabéns sardinha!",
+            "Circuit breaker na sua carteira!",
+            "O Ibovespa subiu, mas sua carteira esqueceu de acompanhar.",
+            "A inflação comeu suas sementes mais rápido que o hamster.",
+            "Day trade é vida. Uma vida curta e cheia de boletos.",
+            "A única coisa que sobrou foi o dividend yield de 0,01 centavo.",
+            "Hora de consultar o Primo Rico pra ver onde você errou.",
+            "Stop loss não é só um botão, é um estado de espírito.",
+            "Suas ações agora são peças de museu: só pra olhar.",
+            "Vendeu as ações da Petrobras pra comprar ração gourmet?",
+            "Bear Market: 1 / Você: 0.",
+            "Sua conta entrou em modo 'Hold' forçado.",
+            "Não é perda se você não vender... mentira, é sim.",
+            "A corretora agradece as taxas de corretagem.",
+            "Seus dividendos não pagam nem o cafezinho.",
+            "Tesouro Direto virou Tesouro Indireto (pro bolso dos outros).",
+            "FIIs de lajes corporativas: o inquilino era um fantasma.",
+            "O candle de hoje é uma homenagem à sua derrota.",
+            "Suas sementes estão presas num fundo de liquidez nula.",
+            "Comprou na baixa? Não, a baixa era o começo do buraco.",
+            "Investir em cripto de hamster não deu certo? Que surpresa.",
+            "Sua reserva de emergência foi usada pra pagar a própria emergência.",
+            "Margin call! Deposite mais sementes imediatamente.",
+            "Você diversificou tanto que não ganha dinheiro em lugar nenhum.",
+            "Sua estratégia 'buy and hold' virou 'buy and cry'.",
+            "O mercado corrigiu... a sua conta bancária.",
+            "A inflação acumulada de 5 segundos te quebrou.",
+            "Trade de valor: você descobriu que seu valor é zero.",
+            "Sua análise fundamentalista esqueceu dos fundamentos da gravidade.",
+            "O home broker travou na hora da venda. Coincidência?",
+            "Amanhã o mercado abre de novo, mas talvez você devesse ficar na cama."
+        ];
+
+        const GAME_DATA = {
+            "spriteSheet": "https://heltongoncalves.github.io/roedor-de-dividendos-assets/G0001.png",
+            "sprites": {
+                "playerRun": [
+                    { "x": 0.005, "y": 0.020, "w": 0.110, "h": 0.150 },
+                    { "x": 0.115, "y": 0.020, "w": 0.110, "h": 0.150 },
+                    { "x": 0.225, "y": 0.020, "w": 0.110, "h": 0.150 },
+                    { "x": 0.335, "y": 0.020, "w": 0.110, "h": 0.150 }
+                ],
+                "playerJump": { "x": 0.115, "y": 0.170, "w": 0.110, "h": 0.150 },
+                "coin": [
+                    { "x": 0.550, "y": 0.580, "w": 0.060, "h": 0.100 },
+                    { "x": 0.620, "y": 0.580, "w": 0.060, "h": 0.100 },
+                    { "x": 0.700, "y": 0.580, "w": 0.060, "h": 0.100 },
+                    { "x": 0.780, "y": 0.580, "w": 0.060, "h": 0.100 }
+                ],
+                "boleto": [
+                    { "x": 0.530, "y": 0.440, "w": 0.100, "h": 0.090 },
+                    { "x": 0.620, "y": 0.440, "w": 0.100, "h": 0.090 },
+                    { "x": 0.710, "y": 0.440, "w": 0.100, "h": 0.090 }
+                ],
+                "bgCity": { "x": 0.005, "y": 0.780, "w": 0.300, "h": 0.220 },
+                "platform": { "x": 0.305, "y": 0.520, "w": 0.140, "h": 0.120 },
+                "heart": { "x": 0.515, "y": 0.745, "w": 0.045, "h": 0.065 },
+                "item_acoes": { "x": 0.682, "y": 0.755, "w": 0.095, "h": 0.115 },
+                "item_fii": { "x": 0.785, "y": 0.755, "w": 0.095, "h": 0.115 },
+                "item_tesouro": { "x": 0.785, "y": 0.885, "w": 0.095, "h": 0.115 },
+                "item_rendafixa": { "x": 0.682, "y": 0.885, "w": 0.095, "h": 0.115 }
+            }
+        };
+
+        const SPRITES = GAME_DATA.sprites;
+
         const spriteSheet = new Image();
         let isImageLoaded = false;
-        let processedSpriteSheet = null; // Canvas interno para guardar a imagem sem fundo
+        let processedSpriteSheet = null;
         spriteSheet.crossOrigin = "Anonymous"; 
         
         spriteSheet.onload = () => {
-            console.log("Sprite sheet matriz carregada. A aplicar transparência...");
-            processedSpriteSheet = applyChromaKey(spriteSheet);
+            processedSpriteSheet = removeFakeTransparency(spriteSheet);
             isImageLoaded = true;
         };
-        spriteSheet.onerror = () => {
-            console.warn("Falha a carregar a imagem. Fallback ativado.");
-            isImageLoaded = false;
-        };
-        spriteSheet.src = 'https://heltongoncalves.github.io/roedor-de-dividendos-assets/G0001.png';
+        spriteSheet.src = GAME_DATA.spriteSheet;
 
-        // MAGIA: Algoritmo que remove o fundo branco e a grelha cinzenta da imagem carregada
-        function applyChromaKey(image) {
+        function removeFakeTransparency(image) {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = image.width;
             tempCanvas.height = image.height;
             const tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
-            
-            // Desenha a imagem original no canvas temporário
             tCtx.drawImage(image, 0, 0);
-            
-            // Lê os píxeis
             const imgData = tCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
             const data = imgData.data;
-            
-            // Varre cada píxel (Red, Green, Blue, Alpha)
             for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                
-                // Se o píxel for branco puro ou muito claro (fundo branco e grelhas claras)
-                // Usamos 210 de limiar (threshold) para também apagar resíduos de compressão jpg
-                if (r > 210 && g > 210 && b > 210) {
-                    data[i + 3] = 0; // Coloca o canal Alpha em 0 (Totalmente Transparente)
-                }
+                const r = data[i], g = data[i+1], b = data[i+2];
+                if (Math.abs(r-g)<20 && Math.abs(g-b)<20 && r > 160) data[i+3] = 0; 
             }
-            
-            // Aplica os novos píxeis transparentes de volta
             tCtx.putImageData(imgData, 0, 0);
-            return tempCanvas; // Retornamos um canvas que agora funciona como uma PNG transparente!
+            return tempCanvas; 
         }
 
-        /* * MAPEAMENTO DE COORDENADAS REAJUSTADO
-         * Apertei mais as caixas de recorte (width e height menores) 
-         * para evitar apanhar os números e linhas da grelha (ex: evitar apanhar o '4')
-         */
-        const SPRITE_MAP = {
-            // Animação de corrida (Recorte mais apertado no centro do quadrado)
-            playerRun: [
-                [0.025, 0.22, 0.065, 0.12],
-                [0.135, 0.22, 0.065, 0.12],
-                [0.245, 0.22, 0.065, 0.12],
-                [0.355, 0.22, 0.065, 0.12]
-            ],
-            playerJump: [0.135, 0.39, 0.075, 0.12], 
-            
-            // Itens com recortes mais justos
-            coin: [
-                [0.515, 0.585, 0.045, 0.085],
-                [0.585, 0.585, 0.045, 0.085],
-                [0.655, 0.585, 0.045, 0.085],
-                [0.725, 0.585, 0.045, 0.085]
-            ],
-            boleto: [
-                [0.510, 0.445, 0.075, 0.075],
-                [0.595, 0.445, 0.075, 0.075],
-                [0.675, 0.445, 0.075, 0.075]
-            ],
-            // Fundo Synthwave ajustado
-            bgCity: [0.015, 0.77, 0.28, 0.21],
-            // Plataforma com recorte ajustado para não ter margens brancas
-            platform: [0.31, 0.515, 0.17, 0.09]
-        };
+        // Variáveis de Estado
+        let isPlaying = false, isPaused = false, score = 0, lives = 3, gameSpeed = 6, frameCount = 0;
+        let debt = 0;
+        const INTEREST_RATE = 0.00015; // Taxa por frame (~0.9% por segundo a 60fps)
+        let bgOffset = 0, floorOffset = 0;
+        let portfolio = { acoes: 0, fii: 0, tesouro: 0, rendafixa: 0 };
+        let player, obstacles = [], collectibles = [], particles = [];
 
-        // Função utilitária que agora desenha usando a imagem PROCESSADA
-        function drawSprite(mapData, x, y, width, height) {
-            if (!isImageLoaded || !processedSpriteSheet) return false;
-            const sx = mapData[0] * processedSpriteSheet.width;
-            const sy = mapData[1] * processedSpriteSheet.height;
-            const sw = mapData[2] * processedSpriteSheet.width;
-            const sh = mapData[3] * processedSpriteSheet.height;
-            ctx.drawImage(processedSpriteSheet, sx, sy, sw, sh, x, y, width, height);
-            return true;
-        }
-
-        // --- VARIÁVEIS DE ESTADO ---
-        const hudLives = document.getElementById('lives');
-        const hudSeeds = document.getElementById('seeds');
-        
-        let animationId;
-        let isPlaying = false;
-        let score = 0;
-        let lives = 3;
-        let gameSpeed = 6;
-        let frameCount = 0;
-        let bgOffset = 0;
-        let floorOffset = 0;
-        
-        let player;
-        let obstacles = [];
-        let collectibles = [];
-        let particles = [];
-
-        const GRAVITY = 0.6;
-        const JUMP_FORCE = -14;
-        const FLOOR_HEIGHT = 90;
+        const GRAVITY = 0.6, JUMP_FORCE = -12, DOUBLE_JUMP_FORCE = -10.5, FLOOR_HEIGHT = 90;
 
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            if (player && player.isGrounded) {
-                player.y = canvas.height - FLOOR_HEIGHT - player.size + 10;
-            }
+            if (player && player.isGrounded) player.y = canvas.height - FLOOR_HEIGHT - player.size + 10;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // --- CLASSES ---
-
         class Player {
             constructor() {
-                this.size = 90; // Aumentei o tamanho de desenho para compensar o recorte mais apertado
-                this.hitSize = 50; 
-                this.x = 80;
+                this.size = 90; this.hitSize = 50; this.x = 80;
                 this.y = canvas.height - FLOOR_HEIGHT - this.size + 10;
-                this.vy = 0;
-                this.isGrounded = true;
-                
-                this.animFrame = 0;
-                this.animTimer = 0;
+                this.vy = 0; this.isGrounded = true;
+                this.animFrame = 0; this.animTimer = 0;
+                this.jumpsCount = 0; this.isSpinning = false;
             }
-
-            jump() {
-                if (this.isGrounded) {
-                    this.vy = JUMP_FORCE;
+            jump(type = 'normal') {
+                if (this.jumpsCount < 2) {
+                    this.vy = type === 'double' || this.jumpsCount === 1 ? DOUBLE_JUMP_FORCE : JUMP_FORCE;
                     this.isGrounded = false;
-                    createParticles(this.x + this.size/2, this.y + this.size, '#cbd5e1', 5);
+                    this.jumpsCount++;
+                    if (type === 'spin') this.isSpinning = true;
+                    createParticles(this.x+this.size/2, this.y+this.size, this.isSpinning ? '#fbbf24' : '#cbd5e1', 6);
                 }
             }
-
             update() {
                 this.vy += GRAVITY;
                 this.y += this.vy;
-
                 const floorLevel = canvas.height - FLOOR_HEIGHT - this.size + 10;
                 if (this.y >= floorLevel) {
-                    this.y = floorLevel;
-                    this.vy = 0;
-                    this.isGrounded = true;
+                    this.y = floorLevel; this.vy = 0; this.isGrounded = true;
+                    this.jumpsCount = 0; this.isSpinning = false;
                 }
-
                 if (this.isGrounded) {
                     this.animTimer++;
-                    if (this.animTimer > 5) { 
-                        this.animFrame = (this.animFrame + 1) % SPRITE_MAP.playerRun.length;
-                        this.animTimer = 0;
-                    }
+                    if (this.animTimer > 5) { this.animFrame = (this.animFrame + 1) % SPRITES.playerRun.length; this.animTimer = 0; }
                 }
             }
-
             draw() {
-                if (isImageLoaded) {
-                    let spriteData = this.isGrounded ? SPRITE_MAP.playerRun[this.animFrame] : SPRITE_MAP.playerJump;
-                    drawSprite(spriteData, this.x, this.y, this.size, this.size);
-                } else {
-                    ctx.save();
-                    ctx.translate(this.x + this.size/2, this.y + this.size/2);
-                    if(!this.isGrounded) ctx.rotate(Math.min(this.vy * 2, 45) * Math.PI / 180);
-                    ctx.font = `${this.size - 20}px Arial`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.fillText("🐹", 0, 0);
-                    ctx.restore();
-                }
+                if (!isImageLoaded || !processedSpriteSheet) return;
+                let spriteData = this.isGrounded ? SPRITES.playerRun[this.animFrame] : SPRITES.playerJump;
+                ctx.save();
+                ctx.translate(this.x + this.size/2, this.y + this.size/2);
+                if (this.isSpinning && !this.isGrounded) if (Math.floor(frameCount / 3) % 2 === 0) ctx.scale(-1, 1);
+                const sx = spriteData.x * processedSpriteSheet.width, sy = spriteData.y * processedSpriteSheet.height;
+                const sw = spriteData.w * processedSpriteSheet.width, sh = spriteData.h * processedSpriteSheet.height;
+                ctx.drawImage(processedSpriteSheet, sx, sy, sw, sh, -this.size/2, -this.size/2, this.size, this.size);
+                ctx.restore();
             }
         }
 
         class Entity {
-            constructor(type) {
-                this.type = type; 
-                this.size = type === 'boleto' ? 70 : 60;
-                this.hitSize = type === 'boleto' ? 40 : 35;
-                this.x = canvas.width + 50;
-                
-                if (type === 'semente') {
-                    this.y = canvas.height - FLOOR_HEIGHT - this.size - (Math.random() * 160);
-                } else {
-                    this.y = canvas.height - FLOOR_HEIGHT - this.size + 20;
-                }
-                
+            constructor(type, x, y, size, subType = null) {
+                this.type = type; this.subType = subType;
+                this.size = size; this.hitSize = size * 0.7;
+                this.x = x; this.y = y;
+                this.value = type === 'boleto' ? Math.floor(Math.random() * 100) + 50 : 0;
                 this.markedForDeletion = false;
-                this.animFrame = 0;
-                this.animTimer = 0;
+                this.animFrame = 0; this.animTimer = 0;
                 this.hoverOffset = 0;
             }
-
             update() {
                 this.x -= gameSpeed;
                 if (this.x + this.size < -50) this.markedForDeletion = true;
-
-                this.animTimer++;
-                const framesLength = this.type === 'semente' ? SPRITE_MAP.coin.length : SPRITE_MAP.boleto.length;
-                if (this.animTimer > 6) { 
-                    this.animFrame = (this.animFrame + 1) % framesLength;
-                    this.animTimer = 0;
+                if (this.type === 'coin' || this.type === 'boleto') {
+                    this.animTimer++;
+                    const frames = this.type === 'coin' ? SPRITES.coin : SPRITES.boleto;
+                    if (this.animTimer > 6) { this.animFrame = (this.animFrame + 1) % frames.length; this.animTimer = 0; }
                 }
-
-                if (this.type === 'semente') {
-                    this.hoverOffset = Math.sin(frameCount * 0.1) * 6; 
-                }
+                if (this.type !== 'boleto') this.hoverOffset = Math.sin(frameCount * 0.1) * 6;
             }
-
             draw() {
-                const drawY = this.y + this.hoverOffset;
+                if (!isImageLoaded || !processedSpriteSheet) return;
+                let sprite;
+                if (this.type === 'coin') sprite = SPRITES.coin[this.animFrame];
+                else if (this.type === 'boleto') sprite = SPRITES.boleto[this.animFrame];
+                else if (this.type === 'heart') sprite = SPRITES.heart;
+                else sprite = SPRITES['item_' + this.subType];
                 
-                if (isImageLoaded) {
-                    const spriteData = this.type === 'semente' 
-                        ? SPRITE_MAP.coin[this.animFrame] 
-                        : SPRITE_MAP.boleto[this.animFrame];
-                    
-                    drawSprite(spriteData, this.x, drawY, this.size, this.size);
-                } else {
-                    ctx.font = `${this.size - 10}px Arial`;
+                const sx = sprite.x * processedSpriteSheet.width, sy = sprite.y * processedSpriteSheet.height;
+                const sw = sprite.w * processedSpriteSheet.width, sh = sprite.h * processedSpriteSheet.height;
+                ctx.drawImage(processedSpriteSheet, sx, sy, sw, sh, this.x, this.y + this.hoverOffset, this.size, this.size);
+                
+                if(this.type === 'boleto') {
+                    ctx.fillStyle = "white";
+                    ctx.font = "bold 12px Arial";
                     ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    if (this.type === 'semente') {
-                        ctx.shadowBlur = 15; ctx.shadowColor = "gold";
-                        ctx.fillText("💰", this.x + this.size/2, drawY + this.size/2);
-                        ctx.shadowBlur = 0;
-                    } else {
-                        const shake = Math.random() * 4 - 2;
-                        ctx.fillText("✉️", this.x + this.size/2 + shake, drawY + this.size/2);
-                    }
+                    ctx.fillText("-" + this.value, this.x + this.size/2, this.y - 5);
                 }
             }
         }
@@ -439,173 +463,218 @@
         class Particle {
             constructor(x, y, color) {
                 this.x = x; this.y = y; this.color = color;
-                this.size = Math.random() * 6 + 3;
-                this.vx = Math.random() * 6 - 3;
-                this.vy = Math.random() * -5 - 2;
+                this.size = Math.random() * 5 + 2;
+                this.vx = Math.random() * 6 - 3; this.vy = Math.random() * -5 - 2;
                 this.life = 1.0;
             }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                this.life -= 0.04;
-            }
-            draw() {
-                ctx.globalAlpha = Math.max(0, this.life);
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1.0;
-            }
+            update() { this.x += this.vx; this.y += this.vy; this.life -= 0.04; }
+            draw() { ctx.globalAlpha = Math.max(0, this.life); ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; }
         }
 
-        // --- SISTEMAS DO JOGO ---
-
-        function createParticles(x, y, color, amount) {
-            for (let i = 0; i < amount; i++) particles.push(new Particle(x, y, color));
-        }
+        function createParticles(x, y, color, amount) { for (let i = 0; i < amount; i++) particles.push(new Particle(x, y, color)); }
 
         function handleSpawns() {
-            if (frameCount % 600 === 0) gameSpeed += 0.4; 
-
-            if (frameCount % 90 === 0 || (Math.random() < 0.02 && frameCount % 40 === 0)) {
-                if (Math.random() < 0.35) obstacles.push(new Entity('boleto'));
-                else collectibles.push(new Entity('semente'));
+            if (frameCount % 600 === 0) gameSpeed += 0.4;
+            if (frameCount % 80 === 0) {
+                const rand = Math.random();
+                if (rand < 0.28) { 
+                    obstacles.push(new Entity('boleto', canvas.width, canvas.height - FLOOR_HEIGHT - 60, 70));
+                } else if (rand < 0.80) { 
+                    const y = canvas.height - FLOOR_HEIGHT - 60 - (Math.random() * 180);
+                    collectibles.push(new Entity('coin', canvas.width, y, 50));
+                } else { 
+                    const y = canvas.height - FLOOR_HEIGHT - 60 - (Math.random() * 180);
+                    const types = ['heart', 'acoes', 'fii', 'tesouro', 'rendafixa'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    collectibles.push(new Entity(type === 'heart' ? 'heart' : 'investment', canvas.width, y, 60, type));
+                }
             }
         }
 
         function drawBackground() {
-            bgOffset -= gameSpeed * 0.3;
-            
-            if (isImageLoaded) {
-                const bgHeight = canvas.height - FLOOR_HEIGHT;
-                const bgWidth = bgHeight * (SPRITE_MAP.bgCity[2] / SPRITE_MAP.bgCity[3]);
-                
-                if (bgOffset <= -bgWidth) bgOffset = 0;
-                
-                for(let i = 0; i < Math.ceil(canvas.width / bgWidth) + 1; i++) {
-                    drawSprite(SPRITE_MAP.bgCity, bgOffset + (i * bgWidth), 0, bgWidth, bgHeight);
-                }
-            } else {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.beginPath(); ctx.arc(canvas.width * 0.8, canvas.height * 0.4, 80, 0, Math.PI * 2); ctx.fill();
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#1e3a8a'); grad.addColorStop(1, '#38bdf8');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (!isImageLoaded || !processedSpriteSheet) return;
+
+            bgOffset -= gameSpeed * 0.2;
+            const bgH = canvas.height - FLOOR_HEIGHT, bgW = bgH * (SPRITES.bgCity.w / SPRITES.bgCity.h);
+            if (bgOffset <= -bgW) bgOffset = 0;
+            for(let i = 0; i < Math.ceil(canvas.width / bgW) + 1; i++) {
+                ctx.drawImage(processedSpriteSheet, SPRITES.bgCity.x*spriteSheet.width, SPRITES.bgCity.y*spriteSheet.height, SPRITES.bgCity.w*spriteSheet.width, SPRITES.bgCity.h*spriteSheet.height, bgOffset + (i*bgW), 0, bgW, bgH);
             }
 
             floorOffset -= gameSpeed;
-            if (isImageLoaded) {
-                const floorW = FLOOR_HEIGHT * (SPRITE_MAP.platform[2] / SPRITE_MAP.platform[3]) * 1.5;
-                if (floorOffset <= -floorW) floorOffset = 0;
-                
-                for(let i = 0; i < Math.ceil(canvas.width / floorW) + 1; i++) {
-                    drawSprite(SPRITE_MAP.platform, floorOffset + (i * floorW), canvas.height - FLOOR_HEIGHT, floorW, FLOOR_HEIGHT);
-                }
-            } else {
-                ctx.fillStyle = '#fcd34d'; 
-                ctx.fillRect(0, canvas.height - FLOOR_HEIGHT, canvas.width, FLOOR_HEIGHT);
+            const flW = FLOOR_HEIGHT * (SPRITES.platform.w / SPRITES.platform.h) * 1.5;
+            if (floorOffset <= -flW) floorOffset = 0;
+            for(let i = 0; i < Math.ceil(canvas.width / flW) + 1; i++) {
+                ctx.drawImage(processedSpriteSheet, SPRITES.platform.x*spriteSheet.width, SPRITES.platform.y*spriteSheet.height, SPRITES.platform.w*spriteSheet.width, SPRITES.platform.h*spriteSheet.height, floorOffset + (i*flW), canvas.height - FLOOR_HEIGHT, flW, FLOOR_HEIGHT);
             }
         }
 
-        function checkCollision(player, entity) {
-            const pX = player.x + (player.size - player.hitSize) / 2;
-            const pY = player.y + (player.size - player.hitSize) / 2;
-            const eX = entity.x + (entity.size - entity.hitSize) / 2;
-            const eY = entity.y + (entity.size - entity.hitSize) / 2;
-
-            return (
-                pX < eX + entity.hitSize &&
-                pX + player.hitSize > eX &&
-                pY < eY + entity.hitSize &&
-                pY + player.hitSize > eY
-            );
+        function checkCollision(p, e) {
+            const pX = p.x + (p.size - p.hitSize)/2, pY = p.y + (p.size - p.hitSize)/2;
+            const eX = e.x + (e.size - e.hitSize)/2, eY = e.y + (e.size - e.hitSize)/2;
+            return (pX < eX + e.hitSize && pX + p.hitSize > eX && pY < eY + e.hitSize && pY + p.hitSize > eY);
         }
 
         function updateHUD() {
-            hudSeeds.innerText = score;
-            hudLives.innerText = lives;
+            document.getElementById('seeds').innerText = Math.floor(score);
+            document.getElementById('debt-value').innerText = Math.floor(debt);
+            document.getElementById('lives').innerText = lives;
+            document.getElementById('count-acoes').innerText = portfolio.acoes;
+            document.getElementById('count-fii').innerText = portfolio.fii;
+            document.getElementById('count-tesouro').innerText = portfolio.tesouro;
+            document.getElementById('count-rendafixa').innerText = portfolio.rendafixa;
+        }
+
+        function togglePause() {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            if(isPaused) {
+                document.getElementById('pause-saldo').innerText = Math.floor(score);
+                document.getElementById('pause-divida').innerText = Math.floor(debt);
+                document.getElementById('btn-pay-debt').disabled = (score < debt || debt <= 0);
+            }
+            document.getElementById('pause-screen').style.display = isPaused ? 'flex' : 'none';
+        }
+
+        function payDebt() {
+            if(score >= debt) {
+                score -= debt;
+                debt = 0;
+                createParticles(canvas.width/2, canvas.height/2, '#10b981', 30);
+                togglePause();
+                updateHUD();
+            }
         }
 
         function gameOver() {
             isPlaying = false;
             cancelAnimationFrame(animationId);
+            const msgElement = document.getElementById('funny-message');
+            const randomMsg = FUNNY_MESSAGES[Math.floor(Math.random() * FUNNY_MESSAGES.length)];
+            msgElement.innerText = randomMsg;
             document.getElementById('game-over').style.display = 'flex';
-            document.getElementById('final-score').innerText = score;
         }
 
-        // --- LOOP PRINCIPAL ---
-
         function init() {
-            player = new Player();
-            obstacles = []; collectibles = []; particles = [];
-            score = 0; lives = 3; gameSpeed = 6; frameCount = 0;
-            bgOffset = 0; floorOffset = 0;
+            player = new Player(); obstacles = []; collectibles = []; particles = [];
+            score = 100; debt = 0; lives = 3; gameSpeed = 6; frameCount = 0; isPaused = false;
+            portfolio = { acoes: 0, fii: 0, tesouro: 0, rendafixa: 0 };
+            document.getElementById('pause-screen').style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
             updateHUD();
         }
 
         function animate() {
             if (!isPlaying) return;
+            if (isPaused) {
+                animationId = requestAnimationFrame(animate);
+                return;
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             drawBackground();
+            
+            // Juros compostos da dívida
+            if(debt > 0) {
+                debt += debt * INTEREST_RATE;
+            }
+
             player.update();
             player.draw();
             handleSpawns();
 
             for (let i = collectibles.length - 1; i >= 0; i--) {
-                let s = collectibles[i];
-                s.update(); s.draw();
+                let s = collectibles[i]; s.update(); s.draw();
                 if (checkCollision(player, s)) {
-                    score += 10;
+                    if (s.type === 'coin') score += 10;
+                    else if (s.type === 'heart') { if(lives < 5) lives++; }
+                    else portfolio[s.subType]++;
                     updateHUD();
                     createParticles(s.x + s.size/2, s.y + s.size/2, '#fbbf24', 10);
                     collectibles.splice(i, 1);
-                } else if (s.markedForDeletion) {
-                    collectibles.splice(i, 1);
-                }
+                } else if (s.markedForDeletion) collectibles.splice(i, 1);
             }
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                let o = obstacles[i];
-                o.update(); o.draw();
+                let o = obstacles[i]; o.update(); o.draw();
                 if (checkCollision(player, o)) {
-                    lives--;
+                    if (player.isSpinning && player.vy > 0) {
+                        // Kill enemy: +20 points
+                        score += 20; 
+                        createParticles(o.x+o.size/2, o.y+o.size/2, '#10b981', 15);
+                        player.vy = JUMP_FORCE * 0.7; player.jumpsCount = 1;
+                    } else {
+                        // Hit bill: accumulate debt
+                        debt += o.value;
+                        createParticles(player.x+player.size/2, player.y+player.size/2, '#ef4444', 10);
+                        
+                        // Check for Insolvency (Dívida > Saldo)
+                        if(debt > score) {
+                            lives--;
+                            score = Math.max(0, score - debt);
+                            debt = 0;
+                            // Efeito de choque visual
+                            canvas.style.transform = `translate(${Math.random()*15 - 7}px, ${Math.random()*15 - 7}px)`;
+                            setTimeout(() => canvas.style.transform = 'translate(0, 0)', 150);
+                            
+                            if (lives <= 0) { gameOver(); return; }
+                        }
+                    }
                     updateHUD();
-                    createParticles(player.x + player.size/2, player.y + player.size/2, '#ef4444', 15);
-                    
-                    canvas.style.transform = `translate(${Math.random()*10 - 5}px, ${Math.random()*10 - 5}px)`;
-                    setTimeout(() => canvas.style.transform = 'translate(0, 0)', 100);
                     obstacles.splice(i, 1);
-                    if (lives <= 0) gameOver();
-                } else if (o.markedForDeletion) {
-                    obstacles.splice(i, 1);
-                }
+                } else if (o.markedForDeletion) obstacles.splice(i, 1);
             }
 
             for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.update(); p.draw();
+                let p = particles[i]; p.update(); p.draw();
                 if (p.life <= 0) particles.splice(i, 1);
             }
-
             frameCount++;
             animationId = requestAnimationFrame(animate);
         }
 
+        const input = { lastUp: 0, lastRight: 0 };
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-over').style.display = 'none';
-            init();
-            isPlaying = true;
-            animate();
+            init(); isPlaying = true; animate();
         }
 
         window.addEventListener('keydown', (e) => {
-            if ((e.code === 'Space' || e.code === 'ArrowUp') && isPlaying) player.jump();
+            if (e.code === 'Escape') {
+                togglePause();
+                return;
+            }
+
+            if (!isPlaying || isPaused) return;
+            const now = Date.now();
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                if (player.jumpsCount < 2) {
+                    if (now - input.lastRight < 250) player.jump('spin');
+                    else player.jump(player.jumpsCount === 0 ? 'normal' : 'double');
+                }
+                input.lastUp = now;
+            }
+            if (e.code === 'ArrowRight') {
+                if (!player.isGrounded && now - input.lastUp < 250) player.isSpinning = true;
+                input.lastRight = now;
+            }
         });
 
+        let tX = 0;
         window.addEventListener('touchstart', (e) => {
+            if (isPaused) return;
             if (e.target.tagName !== 'BUTTON' && isPlaying) {
-                e.preventDefault();
-                player.jump();
+                e.preventDefault(); tX = e.touches[0].clientX;
+                player.jump(player.jumpsCount === 0 ? 'normal' : 'double');
             }
+        }, { passive: false });
+        window.addEventListener('touchmove', (e) => {
+            if (isPlaying && !isPaused && e.touches[0].clientX - tX > 40 && !player.isGrounded) player.isSpinning = true;
         }, { passive: false });
 
     </script>
