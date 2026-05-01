@@ -293,6 +293,7 @@
             "O mercado corrigiu... a sua conta bancária.",
             "A inflação acumulada de 5 segundos te quebrou.",
             "Trade de valor: você descobriu que seu valor é zero.",
+            "O bull market foi viajar e não deixou endereço.",
             "Sua análise fundamentalista esqueceu dos fundamentos da gravidade.",
             "O home broker travou na hora da venda. Coincidência?",
             "Amanhã o mercado abre de novo, mas talvez você devesse ficar na cama."
@@ -520,7 +521,8 @@
 
         function updateHUD() {
             document.getElementById('seeds').innerText = Math.floor(score);
-            document.getElementById('debt-value').innerText = Math.floor(debt);
+            // CORREÇÃO: Adicionando o sinal negativo ao valor do débito no HUD
+            document.getElementById('debt-value').innerText = debt > 0 ? "-" + Math.floor(debt) : "0";
             document.getElementById('lives').innerText = lives;
             document.getElementById('count-acoes').innerText = portfolio.acoes;
             document.getElementById('count-fii').innerText = portfolio.fii;
@@ -533,7 +535,8 @@
             isPaused = !isPaused;
             if(isPaused) {
                 document.getElementById('pause-saldo').innerText = Math.floor(score);
-                document.getElementById('pause-divida').innerText = Math.floor(debt);
+                // CORREÇÃO: Adicionando o sinal negativo ao valor do débito no menu de pausa
+                document.getElementById('pause-divida').innerText = debt > 0 ? "-" + Math.floor(debt) : "0";
                 document.getElementById('btn-pay-debt').disabled = (score < debt || debt <= 0);
             }
             document.getElementById('pause-screen').style.display = isPaused ? 'flex' : 'none';
