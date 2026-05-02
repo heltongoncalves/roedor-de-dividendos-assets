@@ -2,169 +2,39 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
+    <!-- A tag viewport abaixo é crucial para mobile: impede o zoom acidental -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>O Roedor de Dividendos - Fase 1</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap');
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden; 
-            touch-action: none; 
-        }
-
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: #1e3a8a;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* --- HUD ALINHADO EM COLUNAS --- */
-        #hud {
-            position: absolute;
-            top: 20px;
-            left: 0;
-            width: 100%;
-            padding: 0 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            align-items: start;
-            pointer-events: none; 
-            z-index: 10;
-        }
-
-        .hud-left { display: flex; flex-direction: column; gap: 8px; justify-self: start; }
-        .hud-center { display: flex; flex-direction: column; align-items: center; gap: 5px; justify-self: center; }
-        .hud-right { display: flex; flex-direction: column; gap: 8px; justify-self: end; }
-
-        .hud-panel {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            padding: 8px 15px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            min-width: 100px;
-        }
-
-        .hud-panel.calendar-box {
-            border-color: #38bdf8;
-            min-width: 150px;
-            justify-content: center;
-        }
-
-        .hud-panel.debt-box { border-color: #ef4444; color: #fca5a5; }
-
-        .weekday-label {
-            font-size: 0.75rem;
-            color: #38bdf8;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        #bank-alert {
-            background: #ef4444;
-            color: white;
-            padding: 4px 15px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
-            display: none;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(0.95); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .stat-value { font-size: 1.1rem; font-weight: 800; }
-        .stat-icon { font-size: 1.3rem; }
-
-        .portfolio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .portfolio-item {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center; gap: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            min-width: 95px;
-        }
-
-        /* Ecrãs */
-        .screen-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(6px);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100;
-        }
-
-        #game-over, #pause-screen, #debt-screen { display: none; }
-
-        .modal-box {
-            background: rgba(30, 41, 59, 0.98);
-            padding: 30px; border-radius: 24px; text-align: center;
-            border: 2px solid rgba(255,255,255,0.1);
-            max-width: 90%; width: 480px;
-        }
-
-        .tips-list {
-            text-align: left;
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            margin: 20px 0;
-            padding: 0;
-            list-style: none;
-        }
-        .tips-list li { margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
-
-        button {
-            background: #10b981; color: white; border: none; padding: 12px 24px; 
-            font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer;
-            box-shadow: 0 4px 0 #059669; width: 100%; margin-top: 10px; transition: all 0.1s;
-        }
-        button:active { transform: translateY(4px); box-shadow: none; }
-        button:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
-
-        .debt-list { max-height: 220px; overflow-y: auto; margin: 15px 0; text-align: left; }
-        .debt-card {
-            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; margin-bottom: 8px;
-            font-size: 0.85rem; border-left: 4px solid #ef4444; display: flex; justify-content: space-between;
-        }
-
-        @media (max-width: 768px) {
-            #hud { grid-template-columns: 1fr 1fr; }
-            .hud-center { grid-column: span 2; order: -1; margin-bottom: 10px; }
-            .portfolio-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+    <title>O Roedor de Dividendos 3D</title>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- BLOQUEIO DE ORIENTAÇÃO (Aparece apenas em ecrãs verticais) -->
+    <div id="orientation-warning">
+        <h1 style="font-size: 4rem;">📱🔄</h1>
+        <h2>Gira o teu telemóvel</h2>
+        <p>Este jogo foi desenhado para ser jogado na horizontal.</p>
+    </div>
+
+    <!-- Ecrã Inicial de Clique -->
+    <div id="initial-click-screen" class="screen-overlay" style="display: flex;">
+        <div class="modal-box">
+            <h1 style="color: #fbbf24; font-size: 2.2rem; margin-bottom: 10px;">Roedor de Dividendos</h1>
+            <p style="color: #cbd5e1; margin-bottom: 20px;">Prepara-te para a corrida financeira!</p>
+            <button onclick="playIntro()">Iniciar Sessão</button>
+        </div>
+    </div>
+
+    <!-- Contentor do Vídeo de Abertura -->
+    <div id="intro-container">
+        <video id="intro-video" src="https://heltongoncalves.github.io/roedor-de-dividendos-assets/abertura.mp4" playsinline onended="endIntro()"></video>
+        <button class="skip-btn" onclick="skipIntro()">Saltar Intro ⏭️</button>
+    </div>
+
+    <!-- Interface Principal do Jogo -->
     <div id="game-container">
+        
         <div id="hud">
             <div class="hud-left">
                 <div class="hud-panel">
@@ -200,38 +70,38 @@
             </div>
         </div>
 
-        <!-- Ecrã Inicial com Dicas -->
+        <!-- Controlos Mobile Aprimorados -->
+        <div id="mobile-controls">
+            <div class="mob-btn" id="btn-spin">🌀</div>
+            <div class="mob-btn" id="btn-jump">⬆️</div>
+        </div>
+
         <div id="start-screen" class="screen-overlay">
             <div class="modal-box">
-                <h1 style="color: #fbbf24; font-size: 2.2rem; margin-bottom: 10px;">Roedor de Dividendos</h1>
+                <h1 style="color: #fbbf24; font-size: 2.2rem; margin-bottom: 10px;">O Roedor de Dividendos 3D</h1>
                 <p style="color: #cbd5e1; font-weight: bold;">Manual do Investidor:</p>
                 <ul class="tips-list">
-                    <li>👆 <b>Pular:</b> Usa Espaço ou Seta Cima para saltar.</li>
-                    <li>🌀 <b>Giro:</b> Pula + Direita para destruir boletos (80% da altura).</li>
-                    <li>🪜 <b>Plataformas:</b> São sólidas! Usa-as para alcançar o Cofre.</li>
-                    <li>📅 <b>Calendário:</b> Bancos fecham aos fins de semana e feriados!</li>
-                    <li>📡 <b>Sistema:</b> Atenção! O banco pode sair do ar a qualquer momento.</li>
-                    <li>💰 <b>Custo:</b> Moedas que deixares passar reduzem o teu saldo.</li>
+                    <li>👆 <b>Pular:</b> Usa Espaço/Seta Cima (PC) ou o botão ⬆️ (Mobile).</li>
+                    <li>🌀 <b>Giro:</b> Seta Direita no ar (PC) ou botão 🌀 (Mobile) para destruir boletos!</li>
+                    <li>🪜 <b>Plataformas:</b> São sólidas! Cuidado para não bater a cabeça.</li>
+                    <li>💰 <b>Custo:</b> Moedas que perderes reduzem o teu saldo.</li>
                 </ul>
                 <button onclick="startGame()">Começar Corrida</button>
             </div>
         </div>
 
-        <!-- Menu de Pausa -->
         <div id="pause-screen" class="screen-overlay">
             <div class="modal-box">
                 <h2 style="color: #fbbf24; margin-bottom: 20px;">PAUSA</h2>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <button id="pause-btn-debt" style="background: #ef4444; box-shadow: 0 4px 0 #991b1b;" onclick="openDebtScreen()">Quitar Dívidas</button>
-                    <button id="pause-btn-invest" style="background: #3b82f6; box-shadow: 0 4px 0 #1d4ed8;" onclick="showPauseMsg('Não há corretoras nesta zona...')">Investir</button>
-                    <button id="pause-btn-sell" style="background: #8b5cf6; box-shadow: 0 4px 0 #6d28d9;" onclick="showPauseMsg('Venda de ativos bloqueada...')">Vender Ativos</button>
+                    <button id="pause-btn-invest" style="background: #3b82f6; box-shadow: 0 4px 0 #1d4ed8;" onclick="showPauseMsg('Corretoras 3D em construção...')">Investir</button>
+                    <button id="pause-btn-resume" style="background: #10b981; box-shadow: 0 4px 0 #059669;" onclick="togglePause()">Continuar</button>
                 </div>
                 <p id="pause-feedback" style="color: #38bdf8; margin-top: 15px; font-weight: bold; font-size: 0.9rem;"></p>
-                <p style="margin-top: 15px; font-size: 0.8rem; color: #94a3b8;">Pressiona ESC para continuar</p>
             </div>
         </div>
 
-        <!-- Gestão Financeira -->
         <div id="debt-screen" class="screen-overlay">
             <div class="modal-box">
                 <h2 style="color: #ef4444;">🧾 GESTÃO FINANCEIRA</h2>
@@ -242,8 +112,8 @@
                     <p style="font-size: 0.9rem;">Dívida: <span style="color: #ef4444; font-weight: bold;">🧾 <span id="debt-total">0</span></span></p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button id="btn-confirm-pay" onclick="payAllDebts()">Confirmar</button>
-                    <button style="background: #64748b; box-shadow: 0 4px 0 #334155;" onclick="closeDebtScreen()">Cancelar</button>
+                    <button id="btn-confirm-pay" onclick="payAllDebts()">Pagar Tudo</button>
+                    <button style="background: #64748b; box-shadow: 0 4px 0 #334155;" onclick="closeDebtScreen()">Voltar</button>
                 </div>
             </div>
         </div>
@@ -255,264 +125,10 @@
                 <button onclick="startGame()">Tentar Novamente</button>
             </div>
         </div>
-
-        <canvas id="gameCanvas"></canvas>
     </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        const SPRITE_URL = "https://heltongoncalves.github.io/roedor-de-dividendos-assets/G0001.png";
-        const FUNNY_MESSAGES = ["Compraste no topo e vendeste no fundo!", "A inflação comeu as tuas sementes!", "Circuit breaker na tua carteira!", "Falência técnica: juros maiores que o salto!", "O banco caiu na hora de pagar!"];
-        const BOLETO_LABELS = ["Taxa de Fofura", "Aluguel da Roda", "Multa de Giro", "Imposto de Girassol"];
-        const HOLIDAYS = [{m:0,d:1,n:"Ano Novo"}, {m:3,d:21,n:"Tiradentes"}, {m:4,d:1,n:"Trabalho"}, {m:8,d:7,n:"Independência"}, {m:9,d:12,n:"Aparecida"}, {m:10,d:2,n:"Finados"}, {m:10,d:15,n:"República"}, {m:11,d:25,n:"Natal"}];
-
-        const SPRITES = {
-            "playerRun": [{x:0.005,y:0.02,w:0.11,h:0.15},{x:0.115,y:0.02,w:0.11,h:0.15},{x:0.225,y:0.02,w:0.11,h:0.15},{x:0.335,y:0.02,w:0.11,h:0.15}],
-            "playerJump": {x:0.115,y:0.17,w:0.11,h:0.15},
-            "coin": [{x:0.55,y:0.58,w:0.06,h:0.10},{x:0.62,y:0.58,w:0.06,h:0.10},{x:0.7,y:0.58,w:0.06,h:0.10}],
-            "boleto": [{x:0.53,y:0.44,w:0.1,h:0.09},{x:0.62,y:0.44,w:0.1,h:0.09}],
-            "imposto": [{x:0.8,y:0.445,w:0.085,h:0.085}],
-            "bgCity": {x:0.005,y:0.78,w:0.3,h:0.22},
-            "ground": {x:0.305,y:0.52,w:0.14,h:0.12},
-            "step_platform": {x:0.21,y:0.525,w:0.09,h:0.06},
-            "heart": {x:0.515,y:0.745,w:0.045,h:0.065},
-            "cofre": {x:0.875,y:0.585,w:0.065,h:0.085},
-            "item_acoes": {x:0.682,y:0.755,w:0.095,h:0.115},
-            "item_fii": {x:0.785,y:0.755,w:0.095,h:0.115},
-            "item_tesouro": {x:0.785,y:0.885,w:0.095,h:0.115},
-            "item_rendafixa": {x:0.682,y:0.885,w:0.095,h:0.115}
-        };
-
-        const spriteSheet = new Image();
-        let processedSpriteSheet = null, isLoaded = false;
-        spriteSheet.crossOrigin = "Anonymous";
-        spriteSheet.onload = () => { processedSpriteSheet = filterTransparency(spriteSheet); isLoaded = true; };
-        spriteSheet.src = SPRITE_URL;
-
-        function filterTransparency(img) {
-            const t = document.createElement('canvas'); t.width = img.width; t.height = img.height;
-            const tc = t.getContext('2d'); tc.drawImage(img,0,0);
-            const id = tc.getImageData(0,0,t.width,t.height);
-            for(let i=0; i<id.data.length; i+=4) {
-                if(Math.abs(id.data[i]-id.data[i+1])<20 && Math.abs(id.data[i+1]-id.data[i+2])<20 && id.data[i]>160) id.data[i+3]=0;
-            }
-            tc.putImageData(id,0,0); return t;
-        }
-
-        const INITIAL_SPEED = 6, GRAVITY = 0.6, JUMP_FORCE = -12, SPIN_JUMP_FORCE = -9.6, FLOOR_H = 70;
-        const INTEREST = 0.00018, DAY_FRAMES = 600;
-
-        let isPlaying = false, isPaused = false, score = 100, lives = 3, gameSpeed = INITIAL_SPEED, frameCount = 0;
-        let activeBills = [], portfolio = { acoes: 0, fii: 0, tesouro: 0, rendafixa: 0 };
-        let currentDate, isBankDown = false, bankDownDays = 0, lockoutDays = 0;
-        let player, obstacles = [], collectibles = [], platforms = [], particles = [];
-        let bgOff = 0, groundOff = 0;
-
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-
-        class Player {
-            constructor() { this.size = 80; this.x = 100; this.y = canvas.height-FLOOR_H-this.size; this.vy = 0; this.isGrounded = true; this.animF = 0; this.animT = 0; this.jumps = 0; this.isSpin = false; }
-            jump(type = 'normal') {
-                if (this.jumps < 2) {
-                    this.vy = (type === 'spin') ? SPIN_JUMP_FORCE : (this.jumps === 0 ? JUMP_FORCE : -10.5);
-                    this.isGrounded = false; this.jumps++; this.isSpin = (type === 'spin');
-                    createParticles(this.x+40, this.y+this.size, this.isSpin?'#fbbf24':'#cbd5e1', 6);
-                }
-            }
-            update() {
-                this.vy += GRAVITY; this.y += this.vy;
-                const gy = canvas.height-FLOOR_H-this.size;
-                if(this.y >= gy) { this.y = gy; this.vy = 0; this.isGrounded = true; this.jumps = 0; this.isSpin = false; }
-                else {
-                    for(let p of platforms) {
-                        if(this.x + 55 > p.x && this.x + 25 < p.x + p.w) {
-                            if(this.vy > 0 && this.y+this.size >= p.y && this.y+this.size <= p.y + 25) { this.y = p.y-this.size; this.vy = 0; this.isGrounded = true; this.jumps = 0; break; }
-                            if(this.vy < 0 && this.y <= p.y+p.h && this.y >= p.y+p.h-15) { this.y = p.y+p.h; this.vy = 1.5; break; }
-                        }
-                    }
-                }
-                if(this.isGrounded) { this.animT++; if(this.animT > 5) { this.animF = (this.animF + 1)%4; this.animT = 0; } }
-            }
-            draw() {
-                if(!isLoaded) return;
-                const sd = this.isGrounded ? SPRITES.playerRun[this.animF] : SPRITES.playerJump;
-                ctx.save(); ctx.translate(this.x + this.size/2, this.y + this.size/2);
-                if(this.isSpin && !this.isGrounded && Math.floor(frameCount/3)%2===0) ctx.scale(-1, 1);
-                ctx.drawImage(processedSpriteSheet, sd.x*spriteSheet.width, sd.y*spriteSheet.height, sd.w*spriteSheet.width, sd.h*spriteSheet.height, -40, -40, 80, 80);
-                ctx.restore();
-            }
-        }
-
-        class Entity {
-            constructor(type, x, y, size, sub = null) { this.type = type; this.sub = sub; this.x = x; this.y = y; this.size = size; this.val = (type==='safe'?100:10); this.billVal = (type==='boleto'||type==='imposto'?Math.floor(Math.random()*80)+40:0); }
-            update() { this.x -= gameSpeed; }
-            draw() {
-                if(!isLoaded) return;
-                let s;
-                if(this.type==='coin') s=SPRITES.coin[Math.floor(frameCount/10)%3];
-                else if(this.type==='boleto') s=SPRITES.boleto[0];
-                else if(this.type==='imposto') s=SPRITES.imposto[0];
-                else if(this.type==='safe') s=SPRITES.cofre;
-                else if(this.type==='heart') s=SPRITES.heart;
-                else s=SPRITES['item_'+this.sub];
-                const h = (this.type!=='boleto'&&this.type!=='imposto')?Math.sin(frameCount*0.1)*5:0;
-                ctx.drawImage(processedSpriteSheet, s.x*spriteSheet.width, s.y*spriteSheet.height, s.w*spriteSheet.width, s.h*spriteSheet.height, this.x, this.y+h, this.size, this.size);
-                if(this.type==='boleto'||this.type==='imposto') { ctx.fillStyle="#ef4444"; ctx.font="bold 12px Arial"; ctx.textAlign="center"; ctx.fillText("-"+this.billVal, this.x+this.size/2, this.y-5); }
-            }
-        }
-
-        function createParticles(x, y, c, n) { for(let i=0; i<n; i++) particles.push({x,y,c,s:Math.random()*4+2,vx:Math.random()*6-3,vy:Math.random()*-5-2,l:1}); }
-
-        function handleSpawns() {
-            gameSpeed += 0.0006;
-            if(frameCount % DAY_FRAMES === 0) {
-                currentDate.setDate(currentDate.getDate()+1);
-                if(lockoutDays > 0) lockoutDays--;
-                if(bankDownDays > 0) { bankDownDays--; if(bankDownDays <= 0) isBankDown = false; }
-                else if(Math.random()<0.08) { isBankDown = true; bankDownDays = Math.floor(Math.random()*3)+1; }
-            }
-            if(frameCount % 85 === 0) {
-                const r = Math.random();
-                if(r<0.16) platforms.push({x:canvas.width, y:canvas.height-200-Math.random()*150, w:150+Math.random()*50, h:30});
-                if(r<0.22) obstacles.push(new Entity('boleto', canvas.width, Math.random()<0.5?canvas.height-FLOOR_H-65:canvas.height-320-Math.random()*80, 65));
-                else if(r<0.30) obstacles.push(new Entity('imposto', canvas.width, canvas.height-FLOOR_H-65, 70));
-                else if(r<0.75) collectibles.push(new Entity('coin', canvas.width, canvas.height-FLOOR_H-60-Math.random()*280, 45));
-                else {
-                    const t = ['heart','acoes','fii','tesouro','rendafixa'];
-                    const sub = t[Math.floor(Math.random()*t.length)];
-                    collectibles.push(new Entity(sub==='heart'?'heart':'investment', canvas.width, canvas.height-FLOOR_H-120-Math.random()*180, 55, sub));
-                }
-                if(r<0.04 && platforms.length > 0) collectibles.push(new Entity('safe', platforms[platforms.length-1].x+50, platforms[platforms.length-1].y-60, 50));
-            }
-        }
-
-        function drawWorld() {
-            const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,'#1e3a8a'); g.addColorStop(1,'#38bdf8');
-            ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height);
-            if(!isLoaded) return;
-            bgOff -= gameSpeed * 0.2;
-            const cityH = 220, cityW = cityH * (SPRITES.bgCity.w/SPRITES.bgCity.h) * 1.5;
-            if(bgOff <= -cityW) bgOff = 0;
-            for(let i=0; i<Math.ceil(canvas.width/cityW)+1; i++) ctx.drawImage(processedSpriteSheet, SPRITES.bgCity.x*spriteSheet.width, SPRITES.bgCity.y*spriteSheet.height, SPRITES.bgCity.w*spriteSheet.width, SPRITES.bgCity.h*spriteSheet.height, bgOff+i*cityW, canvas.height-FLOOR_H-cityH+20, cityW, cityH);
-            groundOff -= gameSpeed;
-            const gw = FLOOR_H * (SPRITES.ground.w/SPRITES.ground.h) * 2;
-            if(groundOff <= -gw) groundOff = 0;
-            for(let i=0; i<Math.ceil(canvas.width/gw)+1; i++) ctx.drawImage(processedSpriteSheet, SPRITES.ground.x*spriteSheet.width, SPRITES.ground.y*spriteSheet.height, SPRITES.ground.w*spriteSheet.width, SPRITES.ground.h*spriteSheet.height, groundOff+i*gw, canvas.height-FLOOR_H, gw, FLOOR_H);
-            for(let p of platforms) {
-                p.x -= gameSpeed;
-                ctx.drawImage(processedSpriteSheet, SPRITES.step_platform.x*spriteSheet.width, SPRITES.step_platform.y*spriteSheet.height, SPRITES.step_platform.w*spriteSheet.width, SPRITES.step_platform.h*spriteSheet.height, p.x, p.y, p.w, p.h);
-            }
-        }
-
-        function updateHUD() {
-            const totalD = activeBills.reduce((acc, b) => acc + (b.p * Math.pow(1+INTEREST, frameCount-b.s)), 0);
-            if (totalD > score && isPlaying) {
-                lives--; score = 0; activeBills = []; 
-                canvas.style.transform = `translate(${Math.random()*15-7}px, ${Math.random()*15-7}px)`;
-                setTimeout(() => canvas.style.transform = "none", 100);
-                if (lives <= 0) gameOver();
-            }
-            document.getElementById('lives').innerText = lives;
-            document.getElementById('seeds').innerText = Math.floor(score);
-            document.getElementById('debt-value').innerText = totalD > 0 ? "-"+Math.floor(totalD) : "0";
-            document.getElementById('game-date').innerText = `${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`;
-            document.getElementById('game-weekday').innerText = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"][currentDate.getDay()];
-            document.getElementById('bank-alert').style.display = isBankDown ? 'block' : 'none';
-            document.getElementById('count-acoes').innerText = portfolio.acoes;
-            document.getElementById('count-fii').innerText = portfolio.fii;
-            document.getElementById('count-tesouro').innerText = portfolio.tesouro;
-            document.getElementById('count-rendafixa').innerText = portfolio.rendafixa;
-        }
-
-        function isBankOpen(date) {
-            const day = date.getDay();
-            if (day === 0 || day === 6) return { open: false, reason: "Bancos fechados ao fim de semana." };
-            if (isBankDown) return { open: false, reason: "ERRO: Sistema indisponível." };
-            const holiday = HOLIDAYS.find(h => h.m === date.getMonth() && h.d === date.getDate());
-            if (holiday) return { open: false, reason: `Feriado: ${holiday.n}.` };
-            if (lockoutDays > 0) return { open: false, reason: `Compensação em curso (${lockoutDays}d).` };
-            return { open: true };
-        }
-
-        function startGame() {
-            document.getElementById('start-screen').style.display='none'; document.getElementById('game-over').style.display='none';
-            currentDate = new Date(2025, Math.floor(Math.random()*12), Math.floor(Math.random()*28));
-            player = new Player(); obstacles = []; collectibles = []; platforms = []; particles = [];
-            score = 100; activeBills = []; lives = 3; gameSpeed = INITIAL_SPEED; frameCount = 0;
-            isPaused = false; isBankDown = false; bankDownDays = 0; lockoutDays = 0;
-            portfolio = { acoes: 0, fii: 0, tesouro: 0, rendafixa: 0 };
-            isPlaying = true; animate();
-        }
-
-        function gameOver() { isPlaying = false; cancelAnimationFrame(animationId); document.getElementById('funny-message').innerText = FUNNY_MESSAGES[Math.floor(Math.random()*5)]; document.getElementById('game-over').style.display='flex'; }
-
-        function animate() {
-            if(!isPlaying) return; if(isPaused) { animationId = requestAnimationFrame(animate); return; }
-            ctx.clearRect(0,0,canvas.width,canvas.height); drawWorld();
-            player.update(); player.draw(); handleSpawns();
-            for(let i=collectibles.length-1; i>=0; i--) {
-                let s = collectibles[i]; s.update(); s.draw();
-                if(checkCol(player, s)) {
-                    if(s.type==='coin') score += s.val; else if(s.type==='safe') score += 100; else if(s.type==='heart') { if(lives<5) lives++; } else portfolio[s.sub]++;
-                    createParticles(s.x+20, s.y+20, '#fbbf24', 8); collectibles.splice(i,1);
-                } else if(s.x < -100) { if(s.type==='coin') score = Math.max(0, score-10); collectibles.splice(i,1); }
-            }
-            for(let i=obstacles.length-1; i>=0; i--) {
-                let o = obstacles[i]; o.update(); o.draw();
-                if(checkCol(player, o)) {
-                    if(player.isSpin && player.vy > 0) { score += 20; player.vy = -8; createParticles(o.x+30, o.y+30, '#10b981', 12); }
-                    else {
-                        gameSpeed = INITIAL_SPEED; if(o.type==='boleto') lockoutDays = Math.floor(Math.random()*3)+1;
-                        activeBills.push({ t: o.type, label: BOLETO_LABELS[Math.floor(Math.random()*4)], p: o.billVal, s: frameCount });
-                        createParticles(player.x+40, player.y+40, '#ef4444', 10);
-                    }
-                    obstacles.splice(i,1);
-                } else if(o.x < -100) obstacles.splice(i,1);
-            }
-            for(let i=particles.length-1; i>=0; i--) { let p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.l-=0.04; ctx.globalAlpha=Math.max(0, p.l); ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,Math.PI*2); ctx.fill(); if(p.l<=0) particles.splice(i,1); }
-            ctx.globalAlpha = 1; frameCount++; updateHUD(); animationId = requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if(e.code==='Escape') togglePause();
-            if(!isPlaying || isPaused) return;
-            if(e.code==='Space'||e.code==='ArrowUp') { e.preventDefault(); player.jump(Date.now()-input.lastR < 250?'spin':'normal'); input.lastU=Date.now(); }
-            if(e.code==='ArrowRight') { if(!player.isGrounded && Date.now()-input.lastU < 250) player.isSpin = true; input.lastR=Date.now(); }
-        });
-        const input = { lastU: 0, lastR: 0 };
-        function checkCol(p, e) { return (p.x+55 > e.x && p.x+25 < e.x+e.size && p.y+70 > e.y && p.y+10 < e.y+e.size); }
-        
-        function openDebtScreen() {
-            if(isBankDown) return;
-            document.getElementById('pause-screen').style.display = 'none';
-            const list = document.getElementById('debt-list-container'), warn = document.getElementById('bank-warning');
-            list.innerHTML = ""; let t = 0;
-            activeBills.forEach(b => {
-                const cur = b.p * Math.pow(1+INTEREST, frameCount-b.s); t += cur;
-                list.innerHTML += `<div class="debt-card"><b>${b.label}</b><span>💰 ${Math.floor(cur)}</span></div>`;
-            });
-            const status = isBankOpen(currentDate);
-            if(!status.open) { warn.innerText = status.reason; warn.style.display="block"; document.getElementById('btn-confirm-pay').disabled=true; }
-            else { warn.style.display="none"; document.getElementById('btn-confirm-pay').disabled=(score<t||activeBills.length===0); }
-            document.getElementById('debt-total').innerText = Math.floor(t); document.getElementById('debt-saldo').innerText = Math.floor(score);
-            document.getElementById('debt-screen').style.display = 'flex';
-        }
-
-        function closeDebtScreen() { document.getElementById('debt-screen').style.display='none'; document.getElementById('pause-screen').style.display='flex'; }
-        function payAllDebts() { let t = activeBills.reduce((acc, b) => acc + (b.p * Math.pow(1+INTEREST, frameCount-b.s)), 0); if(score >= t) { score -= t; activeBills = []; createParticles(canvas.width/2, canvas.height/2, '#10b981', 30); closeDebtScreen(); updateHUD(); } }
-        function togglePause() { 
-            if(!isPlaying||document.getElementById('debt-screen').style.display==='flex') return; 
-            isPaused = !isPaused; 
-            document.getElementById('pause-btn-debt').disabled = isBankDown;
-            document.getElementById('pause-btn-invest').disabled = isBankDown;
-            document.getElementById('pause-btn-sell').disabled = isBankDown;
-            document.getElementById('pause-feedback').innerText = isBankDown ? "⚠️ Sem conexão com o banco." : "";
-            document.getElementById('pause-screen').style.display = isPaused ? 'flex' : 'none'; 
-        }
-        function showPauseMsg(m) { if(!isBankDown) document.getElementById('pause-feedback').innerText = m; }
-    </script>
+    <!-- Incluindo a Biblioteca Three.js e o teu carregador -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="includes.js"></script>
 </body>
 </html>

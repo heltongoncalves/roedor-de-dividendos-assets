@@ -1,0 +1,71 @@
+/* ========================================= */
+/* mobile.css - Controlos Touch e @media     */
+/* ========================================= */
+
+#orientation-warning {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #0f172a;
+    color: #fbbf24;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+#orientation-warning h2 { margin-top: 15px; }
+#orientation-warning p { color: #cbd5e1; margin-top: 10px; font-size: 1.1rem; }
+
+@media screen and (orientation: portrait) {
+    #orientation-warning { display: flex; }
+    #initial-click-screen, #intro-container, #game-container { display: none !important; }
+}
+
+#mobile-controls {
+    display: none; 
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; 
+    pointer-events: none; 
+    z-index: 50;
+}
+
+.mob-btn {
+    background: rgba(15, 23, 42, 0.7);
+    border: 3px solid rgba(56, 189, 248, 0.8);
+    width: 80px; 
+    height: 80px; 
+    border-radius: 40px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 32px; 
+    color: white; 
+    user-select: none;
+    pointer-events: auto; 
+    position: absolute;
+    bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+}
+
+.mob-btn:active { 
+    background: rgba(56, 189, 248, 0.6); 
+    transform: scale(0.9);
+}
+
+#btn-spin { left: 40px; }
+#btn-jump { right: 40px; }
+
+@media (max-width: 1000px) and (orientation: landscape) {
+    #hud { grid-template-columns: 1fr 1fr; padding: 10px; }
+    .hud-center { grid-column: span 2; order: -1; margin-bottom: 10px; }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    #mobile-controls { display: block; }
+    .tips-list { display: none; }
+}
